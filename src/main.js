@@ -42,7 +42,7 @@ function startApp() {
   const pickables = Object.values(spaces).map(s => s.floor);
 
   /* ---------- 캐릭터 ---------- */
-  let me = CH.create({ hat: 'helmet' }); scene.add(me);
+  let me = CH.create({ hat: 'helmet', animal: 'tiger', crossBag: true }); scene.add(me); // 사용자: 노란 호랑이(외형 고정)
   const guide = CH.create({ shirt: 0x34548A, bottom: 0x2A3F66, hat: 'cap', guide: true, trim: 0xF2994A }); scene.add(guide);
 
   /* ---------- 월드 라벨 ---------- */
@@ -112,7 +112,6 @@ function startApp() {
     a.hidden = false; a.className = kind; $('alertTitle').textContent = title; $('alertSub').textContent = sub || ''; $('alertIcon').innerHTML = kind === 'alarm' ? WAVE : EAR;
     $('metaAlert').textContent = title;
   }
-  function hint(t) { const h = $('hint'); if (!t) { h.hidden = true; return; } h.innerHTML = t; h.hidden = false; }
   let toastT = null;
   function toast(t, ms) { const el = $('toast'); el.innerHTML = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => el.hidden = true, ms || 3400); }
   let bubbleText = '';
@@ -130,6 +129,11 @@ function startApp() {
   // 우상단 카드 접기(모바일)
   const statCard = $('statCard');
   if (innerWidth < 760) statCard.classList.add('collapsed');
+  // 좌측 장소 카드(모바일): 평소엔 장소 이름만, 펼치면 인원·안내 문구
+  { const pc = $('placeCard'), pb = $('placeMore');
+    const sync = () => { const c = pc.classList.contains('collapsed'); pb.textContent = c ? '펼치기' : '접기'; pb.setAttribute('aria-expanded', String(!c)); };
+    if (innerWidth < 760) pc.classList.add('collapsed');
+    pb.onclick = () => { pc.classList.toggle('collapsed'); sync(); }; sync(); }
   $('collapse').onclick = () => { const c = statCard.classList.toggle('collapsed'); $('collapse').textContent = c ? '펼치기' : '접기'; $('collapse').setAttribute('aria-expanded', String(!c)); };
   $('collapse').textContent = statCard.classList.contains('collapsed') ? '펼치기' : '접기';
   const toggleSound = () => { A.setMuted(!A.muted); ['soundBtn', 'soundBtn2'].forEach(id => $(id).textContent = A.muted ? '소리 켜기' : '소리 끄기'); };
@@ -164,8 +168,7 @@ function startApp() {
     A.init();
     S.started = true; S.t0 = performance.now();
     placeIn('home'); setStep(0); setAlert(null);
-    say('어서 와요. 바닥을 누르거나 WASD로 집 안을 걸어 보세요.');
-    hint(isTouch ? '바닥을 눌러 이동 · 한 손가락으로 끌어 둘러보기' : '바닥을 눌러 이동해 보세요 · 오른쪽 버튼으로 끌어 둘러보기');
+    say(isTouch ? '어서 와요. 바닥을 눌러 걸어 보세요. 한 손가락으로 끌면 둘러볼 수 있어요.' : '어서 와요. 바닥을 누르거나 WASD로 집 안을 걸어 보세요.');
     canvas.focus();
     setTimeout(() => { if (S.step === 'calm') startAlarm(); }, 20000); // 집 안을 걸으며 조작을 익히는 시간
   }
@@ -175,8 +178,7 @@ function startApp() {
     setAlert('alarm', '공습경보', '사이렌 3분 파상음 · 적의 공격이 긴박하거나 진행 중');
     A.sirenStart(); A.speak('공습경보. 공습경보. 지금 즉시 대피하십시오.');
     big('공습경보', '침착하게, 하나씩 해요', 2600);
-    say('공습경보예요. 먼저 <b>1번</b>을 눌러 비상 가방을 챙겨요.');
-    hint('<b>1 가방 챙기기</b>를 눌러주세요'); need(1);
+    say('공습경보예요. 먼저 <b>1번</b>을 눌러 비상 가방을 챙겨요.'); need(1);
   }
   function takeBag() {
     if (S.bag) return toast('가방은 이미 챙겼어요');
@@ -184,8 +186,7 @@ function startApp() {
     S.bag = true; me.userData.bag.visible = true; W.home.bagMesh.visible = false; const bl = labelById('bag'); if (bl) bl.show = false;
     $('act1').classList.add('done'); $('act1').querySelector('span').textContent = '가방 챙김'; A.click();
     need(null); S.step = 'toDoor';
-    say('좋아요. 이제 현관으로 나가요. 지하로 내려갈 거예요.');
-    hint('빛나는 길을 따라 <b>현관</b> 쪽 바닥을 눌러주세요');
+    say('좋아요. 지하로 내려갈 거예요. 빛나는 길을 따라 <b>현관</b>으로 나가요.');
     setTarget(HS.door);
   }
   function goDoor() {
@@ -193,8 +194,7 @@ function startApp() {
     transition('현관을 나서는 중', ['10F'], () => {
       placeIn('hall'); S.step = 'hall'; setStep(2);
       labelById('downGoal').show = true;
-      say('지하로 내려가야 해요. <b>엘리베이터</b>와 <b>비상계단</b> 중 어디로 갈까요?');
-      hint('정면의 <b>엘리베이터</b>와 <b>비상계단</b> 중 하나를 골라 앞 바닥을 눌러주세요');
+      say('지하로 내려가야 해요. <b>엘리베이터</b>와 <b>비상계단</b> 중 하나를 골라 앞 바닥을 눌러요.');
       setTarget(null); activate([HS.elevator, HS.stairsDown]);
     });
   }
@@ -202,7 +202,7 @@ function startApp() {
     if (S.step !== 'hall') return;
     HS.elevator.active = false; S.target = null; S.helps++;
     showCard({ title: '잠깐, 계단으로 가요', body: '<ol><li>정전되면 엘리베이터가 멈춰 안에 갇힐 수 있어요.</li><li>사람이 몰리면 기다리는 동안 대피가 늦어져요.</li></ol>', src: src('12·32쪽'), btn: '비상계단으로 안내받기',
-      onClose: () => { HS.elevator.grp.visible = false; setTarget(HS.stairsDown); walkTo(HS.stairsDown.pos); hint('오른쪽 <b>비상계단</b>으로 안내할게요'); } });
+      onClose: () => { HS.elevator.grp.visible = false; setTarget(HS.stairsDown); walkTo(HS.stairsDown.pos); say('오른쪽 <b>비상계단</b>으로 안내할게요.'); } });
   }
   function goDown() {
     if (S.step !== 'hall') return; setTarget(null);
@@ -213,8 +213,7 @@ function startApp() {
       A.sirenLevel(.025);
       setAlert('alarm', '공습경보', '지하 대피소에 도착했어요');
       big('대피소 도착!', '계단으로 안전하게 잘 내려왔어요', 2800);
-      say(''); setTimeout(() => { if (S.step === 'shelter') say('정말 잘했어요! 여기는 지하 대피시설이라 안전해요. 빈 자리에 앉아 숨을 돌려요.'); }, 2800);
-      hint('빛나는 <b>빈 자리</b>를 눌러 앉아주세요');
+      say(''); setTimeout(() => { if (S.step === 'shelter') say('정말 잘했어요! 여기는 지하 대피시설이라 안전해요. 빛나는 <b>빈 자리</b>를 눌러 앉아요.'); }, 2800);
       setTarget(HS.mat);
     });
   }
@@ -223,8 +222,7 @@ function startApp() {
     S.sitting = true; S.step = 'radio'; setStep(3);
     me.position.set(W.shelter.ox + W.shelter.mat.x, .08, W.shelter.mat.z); me.rotation.y = Math.PI; me.userData.sit = 1; S.target = null;
     A.sirenStop();
-    say('대피소에서는 <b>정부 방송</b>을 들으며 기다려요. 옆에 있는 라디오를 켜 볼까요?');
-    hint('빛나는 <b>라디오</b>를 누르거나 <b>B 방송 듣기</b>로 켜주세요'); need('B');
+    say('대피소에서는 <b>정부 방송</b>을 들으며 기다려요. 옆의 <b>라디오</b>를 누르거나 <b>방송 듣기</b>로 켜 볼까요?'); need('B');
     activate([HS.radio]);
   }
   // 라디오를 켜면 평상 안내방송이 나오고, 잠시 뒤 화생방경보로 바뀌어요
@@ -236,7 +234,6 @@ function startApp() {
     setTimeout(() => A.speak('정부 안내방송입니다. 현재 공습경보가 발령 중입니다. 대피소에서 안내에 따라 침착하게 기다려 주십시오.'), 400);
     setAlert('alarm', '공습경보', '라디오 · "대피소에서 침착하게 기다려 주십시오"');
     say('잘 켰어요. 상황이 바뀌면 방송도 바뀌어요. 귀 기울여 들어요.');
-    hint('라디오 방송을 듣는 중…');
     setTimeout(() => { if (S.step === 'radioOn') say('기다리는 동안에도 방송에 계속 귀 기울여요. 방송이 바뀌면 해야 할 일도 바뀌어요.'); }, 10000);
     setTimeout(() => { if (S.step === 'radioOn') broadcastChem(); }, 20000); // 라디오를 켜고 20초 뒤 화생방경보
   }
@@ -247,7 +244,7 @@ function startApp() {
     toast(S.step === 'calm' ? '평소에 TV·라디오와 재난문자 알림을 켜 두면 좋아요' : '지금은 새 방송이 없어요');
   }
   function broadcastChem() {
-    S.step = 'chem'; need(null); setStep(4); hint('');
+    S.step = 'chem'; need(null); setStep(4);
     A.chime(); setTimeout(() => A.speak('화생방 경보. 화학 공격이 확인되었습니다. 코와 입을 가리고, 높은 층 실내로 대피하십시오.'), 900);
     setAlert('chem', '화생방경보', '음성방송 · "화학 공격이 확인되었습니다"');
     S.gasOn = true;
@@ -255,7 +252,7 @@ function startApp() {
     setTimeout(() => {
       big('이번엔 다시 위로', '방금 내려온 길과 반대 방향이에요');
       showCard({ title: '왜 위로 갈까요?', body: '<p>전쟁에 쓰이는 화학 무기는 공기보다 무거워 <b>아래로 가라앉아요.</b> 바깥 공기를 막을 수 있는 <b>높은 층 실내</b>가 더 안전해요.</p>', src: src('20쪽'),
-        onClose: () => { $('big').hidden = true; say('올라가기 전에 <b>2번</b>을 눌러 코와 입을 가려요.'); hint('<b>2 코·입 가리기</b>를 눌러주세요'); need(2); S.step = 'mask'; } });
+        onClose: () => { $('big').hidden = true; say('올라가기 전에 <b>2번</b>을 눌러 코와 입을 가려요.'); need(2); S.step = 'mask'; } });
     }, 1800);
   }
   function coverMouth() {
@@ -266,8 +263,7 @@ function startApp() {
     toast('방독면이 없으면 젖은 수건이나 마스크로 대신해요 <small>(43쪽)</small>', 3600);
     S.sitting = false; me.userData.sit = 0; me.position.y = 0; S.step = 'up';
     labelById('upGoal').show = true;
-    say('이제 비상계단으로 높은 층까지 올라가요.');
-    hint('빛나는 길을 따라 <b>비상계단 · 위로</b>를 눌러주세요');
+    say('이제 빛나는 길을 따라 <b>비상계단</b>으로 높은 층까지 올라가요.');
     setTarget(HS.stairsUp);
   }
   function goUp() {
@@ -275,8 +271,7 @@ function startApp() {
     transition('비상계단으로 올라가는 중', ['B1', '1F', '2F', '3F', '4F', '5F', '6F', '7F', '8F', '9F', '10F', '11F', '12F'], () => {
       placeIn('high'); S.step = 'seal'; setStep(5);
       $('checklist').hidden = false;
-      say('바깥 공기가 들어오지 않게 막아요. 하나씩 가서 눌러 보세요.');
-      hint('빛나는 <b>세 곳</b>을 차례로 눌러주세요');
+      say('바깥 공기가 들어오지 않게 막아요. 빛나는 <b>세 곳</b>을 하나씩 눌러 보세요.');
       setTarget(null); activate([HS.window, HS.sealDoor, HS.vent]);
     });
   }
@@ -291,17 +286,16 @@ function startApp() {
     toast({ window: '창문을 닫았어요', door: '문틈을 테이프로 막았어요', vent: '환풍기를 껐어요. 에어컨과 공기청정기도 꺼요' }[k] + ' <small>(20쪽)</small>');
     if (Object.keys(S.sealed).length === 3) {
       S.step = 'waitClear'; setStep(6);
-      say('잘했어요. 이제 정부 방송을 기다려요.'); hint('');
+      say('잘했어요. 이제 정부 방송을 기다려요.');
       setTimeout(() => {
         S.step = 'clearWait'; A.chime(); setTimeout(() => A.speak('경보 해제. 공격이 끝났습니다. 계속해서 정부 안내방송을 청취하십시오.'), 900);
         setAlert('clear', '경보해제', '음성방송 · 추가 공격이 예상되지 않을 때');
-        say('방송이 나왔어요. 들어 볼까요?');
-        hint('<b>방송 듣기</b>를 눌러주세요'); need('B');
+        say('방송이 나왔어요. <b>방송 듣기</b>를 눌러 들어 볼까요?'); need('B');
       }, 2600);
     }
   }
   function finishClear() {
-    need(null); S.step = 'done'; setStep(7); hint(''); say('');
+    need(null); S.step = 'done'; setStep(7); say('');
     showCard({ who: '정부 안내방송', title: '경보가 해제됐어요', body: '<p>부상자 구조에 함께하고, 다시 공격이 있을 수 있으니 <b>정부 안내방송을 계속 들어요.</b></p>', src: src('11쪽'), btn: '1세트 마치기', onClose: showFinal });
   }
   function showFinal() {
@@ -422,9 +416,9 @@ function startApp() {
     }
     if (clickMark.material.opacity > 0) { clickMark.material.opacity -= dt * 1.6; clickMark.scale.multiplyScalar(1 + dt * 1.2); }
     if (S.fanOn) W.high.fan.rotation.x += dt * 9;
-    // 공습경보 중 집 창밖 붉은 경고등(2.4초 주기로 천천히)
-    { const fx = W.home.alarmFx, on = S.alarmT && S.space === 'home', k = on ? .5 + .5 * Math.sin(t * Math.PI * 2 / 2.4) : 0;
-      fx.redSky.material.opacity = on ? .18 + .3 * k : 0; fx.redLight.intensity = on ? 2 + 6 * k : 0; }
+    // 공습경보 중 창밖 붉은 경고등(2.4초 주기로 천천히) — 경보해제 방송 전까지 계속
+    { const alarmOn = S.alarmT && S.step !== 'clearWait' && S.step !== 'done', k = .5 + .5 * Math.sin(t * Math.PI * 2 / 2.4);
+      ['home', 'hall', 'shelter', 'high'].forEach(key => W[key].alarmFx.set(alarmOn && S.space === key, k)); }
     if (S.closeWin) W.high.pane.position.x += (W.high.paneClosedX - W.high.pane.position.x) * Math.min(1, dt * 4);
     if (S.gasOn && W.shelter.gas.material.opacity < .18) W.shelter.gas.material.opacity += dt * .05;
     if (S.gasOn) W.shelter.gas.position.y = .28 + Math.sin(t * 1.2) * .03;
@@ -446,20 +440,20 @@ function startApp() {
       if (p.z < 1) {
         bubble.hidden = false;
         const bw = bubble.offsetWidth, bh = bubble.offsetHeight, m = 12;
-        const gx = (p.x + 1) / 2 * Wd, gy = Math.min(Hd - 150, Math.max(bh + 160, (1 - p.y) / 2 * Hd));
+        const gx = (p.x + 1) / 2 * Wd, gy = Math.min(Hd - 150, Math.max(bh + 96, (1 - p.y) / 2 * Hd));
         // 내 캐릭터 화면 영역(이름표 ~ 발)
         const hd = V3(me.position.x, 2.2, me.position.z).project(camera), ft = V3(me.position.x, 0, me.position.z).project(camera);
         const mx = (hd.x + 1) / 2 * Wd, mTop = (1 - hd.y) / 2 * Hd, mBot = (1 - ft.y) / 2 * Hd, mw = Math.max(70, (mBot - mTop) * .45);
         let left = Math.min(Wd - bw - m, Math.max(m, gx - bw / 2)), top = gy;
         // 화면 패널(장소·상태·단면도·체크리스트)과 겹치면 그 아래로 내려요
-        for (const id of ['placeCard', 'statCard', 'minimap', 'checklist']) {
+        for (const id of ['placeCard', 'statCard', 'minimap', 'checklist', 'toast']) {
           const el = $(id); if (el.hidden || !el.getClientRects().length) continue; const r = el.getBoundingClientRect();
-          if (left < r.right && left + bw > r.left && top - bh < r.bottom && top > r.top) top = r.bottom + m + bh;
+          if (left < r.right && left + bw > r.left && top - bh < r.bottom && top > r.top) top = r.bottom + m + bh > Hd - 150 ? r.top - m : r.bottom + m + bh; // 아래 자리가 없으면 위로
         }
         // 내 캐릭터를 가리면 안내원 쪽 옆으로 비켜요
         const overlaps = l => l < mx + mw && l + bw > mx - mw && top - bh < mBot && top > mTop;
         if (overlaps(left)) left = Math.min(Wd - bw - m, Math.max(m, gx <= mx ? mx - mw - bw - m : mx + mw + m));
-        if (overlaps(left)) top = Math.max(bh + 160, mTop - m); // 양옆에 자리가 없으면 머리 위로
+        if (overlaps(left)) top = Math.max(bh + 96, mTop - m); // 양옆에 자리가 없으면 머리 위로
         bubble.style.left = left + 'px'; bubble.style.top = top + 'px';
         bubble.style.setProperty('--tail', Math.min(bw - 22, Math.max(22, gx - left)) + 'px');
       } else bubble.hidden = true;

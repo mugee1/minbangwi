@@ -45,6 +45,27 @@
     back.receiveShadow = false;
   }
 
+  // 창밖 붉은 경고등: 하늘 위에 겹치는 붉은 판 + 창 안쪽으로 비치는 붉은 빛
+  function alarmFx(g, x, y, skyZ, lightZ) {
+    const redSky = plane(g, 30, 9, new THREE.MeshBasicMaterial({ color: 0xFF3B2F, transparent: true, opacity: 0, depthWrite: false, toneMapped: false }), x, y, skyZ);
+    redSky.receiveShadow = false;
+    const redLight = new THREE.PointLight(0xFF4A3A, 0, 11, 1.6); redLight.position.set(x, y, lightZ); g.add(redLight);
+    return { set(on, k) { redSky.material.opacity = on ? .18 + .3 * k : 0; redLight.intensity = on ? 2 + 6 * k : 0; } };
+  }
+  // 창이 없는 곳(지하)용 벽 경광등: 붉은 등 + 주변을 물들이는 붉은 빛. spots = [[x, y, z, 벽 방향 회전]]
+  function alarmLamps(g, spots) {
+    const lens = new THREE.MeshStandardMaterial({ color: 0x7A1E16, emissive: 0xFF3B2F, emissiveIntensity: 0, roughness: .3 });
+    const lights = spots.map(([x, y, z, ry]) => {
+      const lamp = new THREE.Group(); lamp.position.set(x, y, z); lamp.rotation.y = ry; g.add(lamp);
+      add(lamp, new THREE.BoxGeometry(.34, .1, .12), std(0x4A4F57), 0, -.12, .06, { noCast: true });
+      const dome = add(lamp, new THREE.SphereGeometry(.15, 18, 12, 0, Math.PI * 2, 0, Math.PI / 2), lens, 0, -.07, .12, { noCast: true });
+      dome.rotation.x = Math.PI / 2;
+      const l = new THREE.PointLight(0xFF4A3A, 0, 9, 1.6); l.position.set(0, -.1, .6); lamp.add(l);
+      return l;
+    });
+    return { set(on, k) { lens.emissiveIntensity = on ? .4 + 2.2 * k : 0; lights.forEach(l => l.intensity = on ? 1.5 + 5 * k : 0); } };
+  }
+
   function room(key, o) {
     const g = new THREE.Group(); g.position.x = o.ox; MB.scene.add(g);
     const W = o.w, D = o.d, H = o.h;
@@ -77,11 +98,8 @@
       light: { sky: 0xFFF8EE, ground: 0x7A6450, sun: 0xFFF0DC, sunI: 2.3, amb: .55 },
     });
     frameWindow(home.walls.back, { x: -1.6, w: 6.4, y0: .45, y1: 2.8 }, std(0xF4F1EC), skyDay, .35);
-    // 공습경보 때 창밖이 붉게 깜빡여요(평소엔 꺼져 있음)
-    const redSky = plane(home.g, 30, 9, new THREE.MeshBasicMaterial({ color: 0xFF3B2F, transparent: true, opacity: 0, depthWrite: false, toneMapped: false }), -1.6, 2.2, -10.3);
-    redSky.receiveShadow = false;
-    const redLight = new THREE.PointLight(0xFF4A3A, 0, 11, 1.6); redLight.position.set(-1.6, 2.2, -4.2); home.g.add(redLight);
-    home.alarmFx = { redSky, redLight };
+    // 공습경보 때 창밖이 붉게 깜빡여요(평소엔 꺼져 있음, 경보해제까지 유지)
+    home.alarmFx = alarmFx(home.g, -1.6, 2.2, -10.3, -4.2);
     (() => {
       const g = home.g;
       // 러그
@@ -161,6 +179,8 @@
       box(g, .5, .7, .18, std(0xC63B3B), -4.8, .7, -2.3); plane(g, .36, .16, basic(T.sign(['소화기'], '#C63B3B', '#FFFFFF', 256, 96)), -4.8, 1.25, -2.2);
       // 천장 조명 띠
       [-4.8, 0, 4.8].forEach(x => box(g, 1.2, .04, .24, new THREE.MeshBasicMaterial({ color: 0xF5F7FA }), x, 2.95, 0, { noCast: true }));
+      // 공습경보 경광등(정면 가운데 · 양쪽 끝 벽)
+      hall.alarmFx = alarmLamps(g, [[0, 2.75, -2.35, 0], [-8.95, 2.6, 0, Math.PI / 2], [8.95, 2.6, 0, -Math.PI / 2]]);
       hall.spawn = new THREE.Vector3(0, 0, 1.3); hall.spawnYaw = 0;
       hall.guide = new THREE.Vector3(-1.7, 0, 2.5);
       hall.elevator = new THREE.Vector3(-2.6, 0, -1.4);
@@ -198,6 +218,8 @@
       const shirts = [0x9DB98A, 0x8DB3D6, 0xE7A07E, 0xC7A6D6, 0xE9C46A, 0x9FC9C0];
       const names = ['라디오 챙긴 이웃', '손전등 담당', '물병 나눔', '조용한 102호', '계단 지킴이', '담요 두 장'];
       const hats = ['beanie', 'none', 'helmet', 'none', 'hood', 'none'];
+      // 이웃은 동물 모습(옷·모자는 그대로). 종마다 귀·주둥이·꼬리가 달라요
+      const animals = ['bear', 'cat', 'dog', 'panda', 'rabbit', 'fox'], widths = [1.08, .97, 1.02, 1.08, .96, 1]; // 두건 자리는 귀가 빠져나오는 토끼
       let n = 0;
       for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) {
         const x = -4.5 + c * 2.4, z = .4 + r * 2.4;
@@ -205,7 +227,7 @@
         const mine = (r === 1 && c === 2), empty = mine || (r === 0 && c === 3);
         if (mine) { shelter.mat = new THREE.Vector3(x, 0, z); continue; }
         if (empty) continue;
-        const p = C.create({ shirt: shirts[n % 6], bottom: 0x7E6A58, hat: hats[n % 6], scale: .95 });
+        const p = C.create({ shirt: shirts[n % 6], bottom: 0x7E6A58, hat: hats[n % 6], scale: .95, animal: animals[n % 6], width: widths[n % 6] });
         p.position.set(x, .08, z); p.rotation.y = Math.PI + (n % 2 ? .3 : -.2); p.userData.sit = 1; p.userData.phase = n;
         g.add(p); shelter.npcs.push(p);
         shelter.labels.push({ text: names[n % 6], cls: 'small', pos: new THREE.Vector3(x, 1.65, z) });
@@ -228,11 +250,13 @@
       // 비상계단(오른쪽 벽)
       box(g, .12, 2.2, 1.3, std(0x587A62), 11.94, 0, 5.2);
       plane(g, 1.3, .46, basic(T.exitSign('비상계단')), 11.86, 2.55, 5.2, -Math.PI / 2);
+      // 공습경보 경광등(경보해제 전까지 붉게 깜빡여요)
+      shelter.alarmFx = alarmLamps(g, [[-6, 2.75, -7.95, 0], [5.5, 2.75, -7.95, 0], [11.95, 2.75, 2.6, -Math.PI / 2], [-11.95, 2.75, 0, Math.PI / 2]]);
       // 가스층(방송 전에는 보이지 않음)
       const gas = new THREE.Mesh(new THREE.BoxGeometry(23.6, .55, 15.6), new THREE.MeshBasicMaterial({ color: 0x6FD0AE, transparent: true, opacity: 0, depthWrite: false }));
       gas.position.set(0, .28, 0); g.add(gas); shelter.gas = gas;
       shelter.spawn = new THREE.Vector3(10.2, 0, 5.2); shelter.spawnYaw = 0.9;
-      shelter.guide = new THREE.Vector3(7.2, 0, 3.2);
+      shelter.guide = new THREE.Vector3(8.6, 0, 2.2); // 기둥(7, 3.6)과 계단→매트 길을 피한 자리
       shelter.stairs = new THREE.Vector3(10.6, 0, 5.2);
       shelter.labels.push({ text: '비상계단 · 위로', cls: 'goal', pos: new THREE.Vector3(11.6, 3.05, 5.2), id: 'upGoal' });
     })();
@@ -245,6 +269,7 @@
       light: { sky: 0xFFF8EE, ground: 0x7A6450, sun: 0xFFF0DC, sunI: 2.1, amb: .55 },
     });
     frameWindow(high.walls.back, { x: 1.2, w: 3.6, y0: .9, y1: 2.5 }, std(0xF4F1EC), skyDay, .3);
+    high.alarmFx = alarmFx(high.g, 1.2, 2.3, -9.8, -3.7);
     (() => {
       const g = high.g;
       // 열린 창(미닫이): 닫으면 유리가 가운데로 옴

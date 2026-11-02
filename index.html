@@ -17,7 +17,7 @@
 <div id="hud" hidden>
   <section id="placeCard" class="panel" aria-label="현재 장소">
     <span class="eyebrow">MUSAI · 대피 연습</span>
-    <div class="ttl"><strong id="placeName">우리 집</strong><span id="placeSub">10층 거실</span></div>
+    <div class="ttl"><strong id="placeName">우리 집</strong><span id="placeSub">10층 거실</span><button class="ghost" id="placeMore" aria-expanded="true">접기</button></div>
     <span class="ppl"><i></i><span id="pplLine">이 장소 2명 · 안내원이 함께 있어요</span></span>
     <span class="note" id="placeNote">함께 있는 이웃은 연습용 가상 인물이에요.</span>
     <button class="exit" id="exitBtn" aria-label="처음으로"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -40,7 +40,6 @@
   </section>
 
   <div id="alert" hidden><span id="alertIcon"></span><strong id="alertTitle"></strong><span id="alertSub"></span></div>
-  <div id="hint" hidden></div>
   <div id="toast" class="panel" hidden></div>
 
   <div id="checklist" class="panel" hidden>
