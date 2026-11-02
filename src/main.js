@@ -178,7 +178,7 @@ function startApp() {
     setAlert('alarm', '공습경보', '사이렌 3분 파상음 · 적의 공격이 긴박하거나 진행 중');
     A.sirenStart(); A.speak('공습경보. 공습경보. 지금 즉시 대피하십시오.');
     big('공습경보', '침착하게, 하나씩 해요', 2600);
-    say('공습경보예요. 먼저 <b>1번</b>을 눌러 비상 가방을 챙겨요.'); need(1);
+    say('공습경보예요. 아래 <b>[가방 챙기기]</b> 버튼이나 선반 위 <b>비상 가방</b>을 눌러 챙겨요.'); need(1);
   }
   function takeBag() {
     if (S.bag) return toast('가방은 이미 챙겼어요');
@@ -346,6 +346,8 @@ function startApp() {
     ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
     ray.setFromCamera(ndc, camera);
     if (S.step === 'radio' && ray.intersectObject(W.shelter.radio.grp, true).length) return radioOn();
+    // 선반 위 비상 가방을 직접 눌러도 챙겨요(PC 클릭 · 휴대폰 터치)
+    if (S.space === 'home' && !S.bag && ray.intersectObject(W.home.bagMesh.parent, true).length) return takeBag();
     if (S.sitting) return;
     const hit = ray.intersectObjects(pickables.filter(f => f.userData.space === S.space), false)[0];
     if (hit) { walkTo(hit.point); clickMark.position.set(hit.point.x, .04, hit.point.z); clickMark.material.opacity = .9; clickMark.scale.setScalar(1); }
@@ -365,7 +367,7 @@ function startApp() {
   function walkTo(p) { if (!S.sitting) S.target = V3(p.x, 0, p.z); }
 
   /* ---------- 카메라 ---------- */
-  const camPos = new THREE.Vector3(), camLook = new THREE.Vector3(), tmp = new THREE.Vector3();
+  const camPos = new THREE.Vector3(), camLook = new THREE.Vector3(), tmp = new THREE.Vector3(), bagV = new THREE.Vector3();
   function desired(out) { const d = S.dist, h = Math.sin(S.pitch) * d, r = Math.cos(S.pitch) * d; return out.set(me.position.x + Math.sin(S.yaw) * r, 1 + h, me.position.z + Math.cos(S.yaw) * r); }
   function snapCamera() { desired(camPos); camLook.set(me.position.x, 1, me.position.z); camera.position.copy(camPos); camera.lookAt(camLook); }
 
@@ -462,6 +464,14 @@ function startApp() {
         const overlaps = l => l < mx + mw && l + bw > mx - mw && top - bh < mBot && top > mTop;
         if (overlaps(left)) left = Math.min(Wd - bw - m, Math.max(m, gx <= mx ? mx - mw - bw - m : mx + mw + m));
         if (overlaps(left)) top = Math.max(bh + 96, mTop - m); // 양옆에 자리가 없으면 머리 위로
+        // 지금 눌러야 할 비상 가방을 가리면 옆(자리가 없으면 위아래)으로 비켜요
+        if (S.step === 'alarm' && S.space === 'home') {
+          const b = W.home.bagMesh.getWorldPosition(bagV).project(camera), bx = (b.x + 1) / 2 * Wd, by = (1 - b.y) / 2 * Hd, pad = 34;
+          if (bx > left - pad && bx < left + bw + pad && by > top - bh - pad && by < top + pad) {
+            const l2 = bx > Wd / 2 ? bx - pad - bw : bx + pad;
+            if (l2 >= m && l2 + bw <= Wd - m) left = l2; else top = by + pad + bh <= Hd - 150 ? by + pad + bh : Math.max(bh + 96, by - pad);
+          }
+        }
         bubble.style.left = left + 'px'; bubble.style.top = top + 'px';
         bubble.style.setProperty('--tail', Math.min(bw - 22, Math.max(22, gx - left)) + 'px');
       } else bubble.hidden = true;
@@ -478,6 +488,7 @@ function startApp() {
     walkHS(name) { walkTo(HS[name].pos); },
     walkLocal(x, z) { const sp = spaces[S.space]; walkTo(V3(sp.ox + x, 0, z)); },
     clickCard() { if (!$('cardWrap').hidden) $('cardBtn').click(); },
+    bagScreen() { const p = W.home.bagMesh.getWorldPosition(V3(0, 0, 0)).project(camera); return [(p.x + 1) / 2 * innerWidth, (1 - p.y) / 2 * innerHeight]; },
     turn(dy) { S.yaw += dy; },
   };
 }

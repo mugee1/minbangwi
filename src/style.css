@@ -91,14 +91,20 @@ kbd{font-family:inherit;font-size:11px;line-height:1;padding:3px 6px;border-radi
 
 #bottom{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;align-items:center;padding:6px;border-radius:18px;z-index:5;max-width:calc(100vw - 32px)}
 #bottom .sep{width:1px;height:22px;background:rgba(255,255,255,.18);margin:0 4px;flex:none}
-.act{height:48px;padding:0 14px;border-radius:13px;border:1.5px solid transparent;background:transparent;display:flex;align-items:center;gap:8px;font-size:15px;white-space:nowrap;color:var(--text)}
+.act{position:relative;height:48px;padding:0 14px;border-radius:13px;border:1.5px solid transparent;background:transparent;display:flex;align-items:center;gap:8px;font-size:15px;white-space:nowrap;color:var(--text)}
 .act:hover{background:rgba(255,255,255,.07)}
 .act.done{color:var(--ok)}
 .act.done kbd{border-color:rgba(124,224,166,.5);color:var(--ok)}
-.need{border-color:var(--accent)!important;background:var(--accent-soft)!important;animation:needp 1.4s ease-out infinite}
+/* 지금 눌러야 할 버튼: 노랑으로 천천히 밝아졌다 어두워지고, 위에 '여기를 눌러요' 꼬리표 */
+.act.need{border-color:var(--accent);animation:needp 1.4s ease-out infinite,needb .9s ease-in-out infinite alternate}
+.act.need kbd{border-color:var(--accent);color:var(--accent)}
+.act.need::after{content:'여기를 눌러요';position:absolute;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%);padding:5px 11px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:12.5px;font-weight:700;white-space:nowrap;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.25)}
 @keyframes needp{0%{box-shadow:0 0 0 0 rgba(255,212,59,.45)}100%{box-shadow:0 0 0 12px rgba(255,212,59,0)}}
+@keyframes needb{from{background:rgba(255,212,59,.12)}to{background:rgba(255,212,59,.36)}}
 
-#controls{position:fixed;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));font-size:12.5px;line-height:1.85;color:rgba(34,52,77,.72);z-index:3;text-shadow:0 0 4px rgba(255,255,255,.9);pointer-events:none}
+#controls{position:fixed;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));padding:10px 14px;border-radius:14px;background:var(--panel-solid);border:1px solid var(--line);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:13.5px;line-height:1.8;color:var(--sub);z-index:3;pointer-events:none}
+#controls b{color:var(--text);font-weight:600;margin-right:6px}
+#controls kbd{margin-right:2px}
 
 #minimap{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:calc(300px + env(safe-area-inset-top,0px));width:150px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;z-index:4}
 #minimap small{font-size:12px;color:var(--sub)}
@@ -225,6 +231,7 @@ details.info a{color:rgba(255,212,59,.7)}
   #lobby .primary{min-height:48px}
 }
 @media (prefers-reduced-motion:reduce){
-  #alert.alarm,.need{animation:none}
+  #alert.alarm,.act.need{animation:none}
+  .act.need{background:rgba(255,212,59,.28)}
   #trans{transition:none}
 }
