@@ -12,8 +12,9 @@ module.exports = async function drive(p, shot){
   await p.evaluate(()=>app.walkHS('door')); await step('hall'); await W(1500); await shot('hall');
   await p.evaluate(()=>app.walkHS('elevator')); await until(()=>!document.getElementById('cardWrap').classList.contains('hidden')); await W(2500); await shot('elevator');
   await p.evaluate(()=>app.clickCard()); await step('shelter'); await W(1800); await shot('shelter');
-  await p.evaluate(()=>app.walkHS('mat')); await step('listen'); await W(1800); await shot('listen');
-  await p.keyboard.press('b'); await until(()=>!document.getElementById('cardWrap').classList.contains('hidden')); await W(2800); await shot('chem');
+  await p.evaluate(()=>app.walkHS('mat')); await step('radio'); await W(1800); await shot('radio');
+  await p.keyboard.press('b'); await step('radioOn'); await W(1500); await shot('radioOn');
+  await until(()=>!document.getElementById('cardWrap').hidden); await W(1000); await shot('chem');
   await p.evaluate(()=>app.clickCard()); await W(1500);
   await p.keyboard.press('2'); await W(2000); await shot('mask');
   await p.evaluate(()=>app.walkHS('stairsUp')); await step('seal'); await W(1800); await shot('seal');

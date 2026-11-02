@@ -1,0 +1,54 @@
+# 무사이(MUSAI) — 대피 연습 3D 웹
+
+서비스명 무사이(MUSAI): ‘무사히’에서 착안, 안전하게 상황을 헤쳐 나가는 경험. 이름은 `src/config.js`의 `SERVICE_NAME`과 `index.html` 로비 제목에 있음. 저장소 이름(minbangwi)과 3D 속 "민방위 대피시설" 표지판(실제 시설 명칭)은 그대로 둔다.
+
+공습경보 → 지하 대피소 → 화생방(다시 위로) → 경보해제까지 "대피 1세트"를 3D 공간에서 걸으며 익히는 교육용 정적 웹. 대상에 어린이도 포함되므로 겁주지 않는 톤(해요체, 부드러운 색)을 유지한다.
+
+## 실행 · 배포
+- 빌드 없음. `index.html`을 브라우저로 열면 동작. `?test`(시간 빠르게), `?lite`(그림자 끔).
+- `tools/build-single.py` → `dist/single.html`(한 파일로 합침, dist는 gitignore).
+- 원격: `https://github.com/mugee1/minbangwi.git` (`main`). GitHub Pages 배포 대상.
+- Windows, `core.autocrlf=true` → 커밋 시 LF/CRLF 경고는 무시해도 됨. 모든 파일 UTF-8(BOM 없음).
+
+## 파일 구조
+| 파일 | 역할 |
+|---|---|
+| `index.html` | HUD·로비(진입 팝업)·카드·완료 화면 마크업. 스크립트는 전역 IIFE 순서대로 로드 |
+| `src/config.js` | `MB.config`: 서비스명, 단계(STEPS), 회고 카드 '왜' 4가지 |
+| `src/textures.js` | `MB.tex`: 캔버스로 그리는 재질(강마루 `wood`, 타일, 콘크리트, 벽지, 창밖 하늘, 표지판) |
+| `src/characters.js` | `MB.characters`: 치비 캐릭터, 모자, 걷기/앉기 애니메이션 |
+| `src/world.js` | `MB.world.build()`: 4개 공간(home 10층 거실, hall 10층 복도, shelter B1, high 12층) — 각 공간은 x 오프셋(0/40/80/120)으로 나란히 배치 |
+| `src/audio.js` | `MB.audio`: Web Audio 사이렌·차임·클릭 + Web Speech 음성 |
+| `src/main.js` | 렌더러·카메라·입력·HUD·대피 흐름. `startApp()`은 Pretendard 로드 후(최대 2초) 실행. 테스트 훅 `window.app` |
+| `src/style.css` | 전체 UI 스타일. 색은 `:root` 토큰으로 관리 |
+| `tools/drive.js`, `tools/test.js` | Playwright 자동 플레이(단계별 스크린샷) |
+
+## 대피 흐름 (`S.step` 상태)
+`calm` → (진입 **20초** 뒤 또는 `startAlarm`) `alarm` → 1번 가방 → `toDoor` → 현관 → `hall`
+→ 복도 정면에 **엘리베이터(왼쪽)·비상계단(오른쪽)이 함께 보이고 사용자가 고름**. 엘리베이터 선택 시 이유 카드 후 계단 안내, 계단 바로 선택 시 정답 토스트
+→ `shelter`(도착 칭찬 "대피소 도착!" 후 빈 자리 안내) → 앉기 → `radio`(라디오 클릭 또는 B로 켜기)
+→ `radioOn`(평상 안내방송 → 10초 뒤 안내원 한마디 → **20초 뒤** 자동으로) → `chem`(화생방 경보, 이유 카드) → `mask`(2번 코·입) → `up` → 계단 위로 → `seal`(창문·문틈·환풍기 3곳) → `waitClear` → `clearWait`(B 방송) → `done` → 완료 카드.
+- 목표 지점은 `hotspot(name, space, pos, r, onEnter)`. 밟으면(반경 r) 발동. 라디오 링은 표시용(r=.01)이고 실제 동작은 클릭 레이캐스트/B 키.
+- 안내원 대사 `say()`, 상단 안내 `hint()`, 토스트 `toast()`, 큰 제목 `big()`, 카드 `showCard()`.
+
+## 디자인 결정 (사용자 확정 사항)
+- **테마 = 시안 E**: 다크 그레이 반투명 패널(`--panel` .62 / `--panel-solid` .78 + blur) + 노란 테두리 `--edge:#FFD43B`, 강조색 노랑 `--accent:#FFD43B`, 글자 흰색. 경보는 코랄 `#FF7A66`(빨강 금지, 깜빡임 느리게).
+- 3D 바닥의 목표 링·길 안내 점은 파랑(밝은 마루 위 가시성 때문).
+- 글꼴: **Pretendard v1.3.9**(jsDelivr). 3D 표지판 캔버스 글꼴도 Pretendard.
+- 거실: 밝은 오크 강마루, 웜화이트 벽, 큰 거실창+커튼, 크림 소파, 테라코타 러그, 월넛 테이블.
+- 진입 팝업: 폭 460px, 데스크톱(1280×720 이상)에서 **스크롤 없어야 함**. 모자·닉네임 선택 없음(이름 자동 부여). 취지 3가지 + 3D 아이콘(인라인 SVG). 서비스 안내 본문은 12px·흰색 50%.
+- 텍스트 여백은 넉넉하게(사용자가 "붙어 있다"고 지적함). 한국어 줄바꿈 `word-break:keep-all`.
+- 외부 서비스(산사, 사우나 고요)를 참고했다는 표현은 코드·문서 어디에도 두지 않는다.
+
+## 사실 확인된 내용
+- 공습경보 사이렌: **파상음, 5초 상승 · 3초 하강 반복**(`audio.js` RISE/FALL). 2초/2초는 재난경보음이라 다름.
+- 사이렌 길이는 자료마다 1분/3분으로 다름 — 화면 문구는 "3분"이며 사용자가 책자 확인 예정(미확정).
+- 행동요령 출처: 행정안전부 『비상시 국민행동요령』(2023), 문구마다 쪽수 표기.
+
+## 검증 방법
+- Playwright는 저장소에 설치돼 있지 않다. 스크래치 폴더에 `playwright-core`를 설치하고 `chromium.launch({ channel: 'msedge', args: ['--use-angle=swiftshader','--enable-unsafe-swiftshader'] })`로 `tools/drive.js`를 실행해 단계별 스크린샷과 콘솔 오류를 확인한다.
+- 진입 팝업 스크롤 확인: `#lobby .card`의 `scrollHeight > clientHeight`를 1920×1080, 1440×900, 1366×768, 1280×720에서 확인.
+
+## 작업 규칙
+- 사용자와는 한국어로 소통. UI 문구는 해요체, 짧고 쉽게.
+- 커밋·푸시는 요청받았을 때만. 커밋 메시지 끝에 Co-Authored-By 줄.

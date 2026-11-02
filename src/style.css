@@ -1,4 +1,4 @@
-/* 민방위(가칭) — 대피 연습 3D
+/* 무사이(MUSAI) — 대피 연습 3D
    레이아웃: 화면 전체 3D 캔버스 위에 밝은 학습용 카드 패널(좌상단 장소, 우상단 상태, 하단 동작 바)
    색: 하늘색 + 햇살 노랑. 아이들도 무섭지 않게 경보는 부드러운 코랄로 표시 */
 :root{
@@ -42,9 +42,9 @@ kbd{font-family:inherit;font-size:11px;line-height:1;padding:3px 6px;border-radi
 .tag.warn{background:var(--alert);color:#fff}
 .tag.me{display:flex;align-items:center;gap:6px;padding:4px 11px 4px 5px}
 .tag.me i{font-style:normal;width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
-.bubble{position:absolute;transform:translate(-50%,-100%);width:max-content;max-width:min(300px,70vw);padding:13px 17px;border-radius:16px;background:var(--panel);border:1.5px solid var(--edge);backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2);font-size:14.5px;line-height:1.65;color:var(--text);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.bubble{position:absolute;transform:translateY(-100%);width:max-content;max-width:min(300px,70vw);padding:13px 17px;border-radius:16px;background:var(--panel);border:1.5px solid var(--edge);backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2);font-size:14.5px;line-height:1.65;color:var(--text);box-shadow:0 6px 24px rgba(0,0,0,.25)}
 .bubble b.who{display:block;font-size:11.5px;color:var(--accent);font-weight:600;margin-bottom:5px}
-.bubble::after{content:"";position:absolute;left:50%;bottom:-7px;width:12px;height:12px;background:var(--panel);border-right:1.5px solid var(--edge);border-bottom:1.5px solid var(--edge);transform:translateX(-50%) rotate(45deg);clip-path:polygon(100% 0,100% 100%,0 100%)}
+.bubble::after{content:"";position:absolute;left:var(--tail,50%);bottom:-7px;width:12px;height:12px;background:var(--panel);border-right:1.5px solid var(--edge);border-bottom:1.5px solid var(--edge);transform:translateX(-50%) rotate(45deg);clip-path:polygon(100% 0,100% 100%,0 100%)}
 
 /* ---------- HUD ---------- */
 #placeCard{position:fixed;left:max(16px,env(safe-area-inset-left,0px));top:calc(16px + env(safe-area-inset-top,0px));padding:16px 20px;display:flex;flex-direction:column;gap:7px;z-index:5;max-width:min(380px,calc(100vw - 32px))}
@@ -129,7 +129,8 @@ kbd{font-family:inherit;font-size:11px;line-height:1;padding:3px 6px;border-radi
 #lobby .card{width:min(460px,100%);padding:30px 30px 22px;gap:18px;word-break:keep-all;text-wrap:pretty}
 #lobby .lobby-head{display:flex;flex-direction:column;gap:8px}
 #lobby h1{margin:0;font-size:30px;letter-spacing:-1px;line-height:1.15}
-#lobby .eng{font-size:12px;letter-spacing:.28em;color:var(--accent);font-weight:700}
+#lobby h1 .en{font-size:.55em;letter-spacing:.18em;color:var(--accent);font-weight:800;vertical-align:.25em;margin-left:4px}
+#lobby .eng{font-size:12.5px;color:var(--sub);font-weight:500}
 #lobby .tagline{font-size:20px;font-weight:700;margin:4px 0 -6px;letter-spacing:-.4px;line-height:1.4}
 #lobby .tagline em{font-style:normal;color:var(--accent)}
 #lobby .desc{font-size:15px;color:var(--sub);line-height:1.75;margin:0}

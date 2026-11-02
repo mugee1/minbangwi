@@ -77,6 +77,11 @@
       light: { sky: 0xFFF8EE, ground: 0x7A6450, sun: 0xFFF0DC, sunI: 2.3, amb: .55 },
     });
     frameWindow(home.walls.back, { x: -1.6, w: 6.4, y0: .45, y1: 2.8 }, std(0xF4F1EC), skyDay, .35);
+    // 공습경보 때 창밖이 붉게 깜빡여요(평소엔 꺼져 있음)
+    const redSky = plane(home.g, 30, 9, new THREE.MeshBasicMaterial({ color: 0xFF3B2F, transparent: true, opacity: 0, depthWrite: false, toneMapped: false }), -1.6, 2.2, -10.3);
+    redSky.receiveShadow = false;
+    const redLight = new THREE.PointLight(0xFF4A3A, 0, 11, 1.6); redLight.position.set(-1.6, 2.2, -4.2); home.g.add(redLight);
+    home.alarmFx = { redSky, redLight };
     (() => {
       const g = home.g;
       // 러그
@@ -136,30 +141,32 @@
     });
     (() => {
       const g = hall.g;
-      [[-4.5, '1001'], [0, '1002'], [4.5, '1003']].forEach(([x, n]) => {
+      // 정면 벽 한 장면에 엘리베이터(왼쪽)와 비상계단(오른쪽)이 함께 보이게 배치
+      [[-6.6, '1001'], [6.6, '1002']].forEach(([x, n]) => {
         box(g, 1.15, 2.2, .1, std(0x8C6C52), x, 0, -2.36);
         add(g, new THREE.SphereGeometry(.05, 10, 8), std(0xD9C29A, { metalness: .6, roughness: .3 }), x + .42, 1.05, -2.28);
         plane(g, .42, .16, basic(T.sign([n], '#F2EEE6', '#3A2E25', 256, 96)), x, 2.42, -2.39);
       });
-      // 엘리베이터(왼쪽 벽)
-      box(g, .12, 2.6, 2.4, std(0x9DA2A8, { metalness: .5, roughness: .35 }), -8.94, 0, 0);
-      box(g, .14, 2.2, .9, std(0xBFC4C9, { metalness: .6, roughness: .25 }), -8.88, 0, -.46);
-      box(g, .14, 2.2, .9, std(0xBFC4C9, { metalness: .6, roughness: .25 }), -8.88, 0, .46);
-      const ind = plane(g, .8, .28, basic(T.sign(['정전 · 운행 중지'], '#2B1414', '#FF8A85', 512, 160)), -8.86, 2.42, 0, Math.PI / 2);
-      box(g, .06, .3, .16, std(0x8C9196), -8.9, 1.0, 1.1);
+      // 엘리베이터(정면 왼쪽)
+      box(g, 2.2, 2.6, .12, std(0x9DA2A8, { metalness: .5, roughness: .35 }), -2.6, 0, -2.36);
+      box(g, .9, 2.2, .14, std(0xBFC4C9, { metalness: .6, roughness: .25 }), -3.06, 0, -2.3);
+      box(g, .9, 2.2, .14, std(0xBFC4C9, { metalness: .6, roughness: .25 }), -2.14, 0, -2.3);
+      plane(g, .9, .3, basic(T.sign(['정전 · 운행 중지'], '#2B1414', '#FF8A85', 512, 160)), -2.6, 2.45, -2.28);
+      box(g, .16, .3, .06, std(0x8C9196), -1.25, 1.0, -2.36);
+      // 비상계단 문(정면 오른쪽)
+      box(g, 1.3, 2.2, .12, std(0x587A62), 2.6, 0, -2.36);
+      add(g, new THREE.BoxGeometry(.5, .05, .06), std(0xC9CCD0, { metalness: .6, roughness: .3 }), 2.15, 1.05, -2.27);
+      plane(g, 1.3, .46, basic(T.exitSign('비상계단')), 2.6, 2.55, -2.29);
       // 소화기함
-      box(g, .5, .7, .18, std(0xC63B3B), 2.2, .7, -2.3); plane(g, .36, .16, basic(T.sign(['소화기'], '#C63B3B', '#FFFFFF', 256, 96)), 2.2, 1.25, -2.2);
-      // 비상계단 문(오른쪽 벽)
-      box(g, .12, 2.2, 1.3, std(0x587A62), 8.94, 0, 0);
-      plane(g, 1.3, .46, basic(T.exitSign('비상계단')), 8.86, 2.55, 0, -Math.PI / 2);
+      box(g, .5, .7, .18, std(0xC63B3B), -4.8, .7, -2.3); plane(g, .36, .16, basic(T.sign(['소화기'], '#C63B3B', '#FFFFFF', 256, 96)), -4.8, 1.25, -2.2);
       // 천장 조명 띠
-      [-6, -2, 2, 6].forEach(x => box(g, 1.2, .04, .24, new THREE.MeshBasicMaterial({ color: 0xF5F7FA }), x, 2.95, 0, { noCast: true }));
-      hall.spawn = new THREE.Vector3(0, 0, -1.2); hall.spawnYaw = 0;
-      hall.guide = new THREE.Vector3(5.6, 0, 1.4);
-      hall.elevator = new THREE.Vector3(-7.7, 0, 0);
-      hall.stairs = new THREE.Vector3(7.8, 0, 0);
-      hall.labels.push({ text: '엘리베이터', cls: 'warn', pos: new THREE.Vector3(-8.6, 2.95, 0) });
-      hall.labels.push({ text: '비상계단', cls: 'goal', pos: new THREE.Vector3(8.6, 3.05, 0), id: 'downGoal' });
+      [-4.8, 0, 4.8].forEach(x => box(g, 1.2, .04, .24, new THREE.MeshBasicMaterial({ color: 0xF5F7FA }), x, 2.95, 0, { noCast: true }));
+      hall.spawn = new THREE.Vector3(0, 0, 1.3); hall.spawnYaw = 0;
+      hall.guide = new THREE.Vector3(-1.7, 0, 2.5);
+      hall.elevator = new THREE.Vector3(-2.6, 0, -1.4);
+      hall.stairs = new THREE.Vector3(2.6, 0, -1.4);
+      hall.labels.push({ text: '엘리베이터', cls: 'obj', pos: new THREE.Vector3(-2.6, 3.0, -2.2) });
+      hall.labels.push({ text: '비상계단', cls: 'obj', pos: new THREE.Vector3(2.6, 3.1, -2.2), id: 'downGoal' });
     })();
 
     /* ---------- 지하 대피소 B1 ---------- */
@@ -207,6 +214,17 @@
       }
       // 라디오
       box(g, .5, .3, .2, std(0xD95C4A), -4.5 + 2.4 * 3 + .1, .08, .4 + .55);
+      // 내 자리 옆 라디오(켜면 정부 방송이 나와요)
+      const radio = new THREE.Group(); radio.position.set(1.3, .08, 2.25); radio.rotation.y = -.5; g.add(radio);
+      box(radio, .62, .36, .24, std(0xE06A4E, { roughness: .6 }), 0, 0, 0);
+      add(radio, new THREE.CircleGeometry(.11, 20), std(0x3A2E2A), -.14, .18, .121);
+      const dial = add(radio, new THREE.BoxGeometry(.2, .08, .02), new THREE.MeshStandardMaterial({ color: 0x4A4F57, emissive: 0x000000, roughness: .4 }), .14, .2, .125);
+      add(radio, new THREE.CylinderGeometry(.03, .03, .05, 12), std(0xF2EEE6), .14, .08, .13).rotation.x = Math.PI / 2;
+      const ant = add(radio, new THREE.CylinderGeometry(.008, .008, .5, 6), std(0xC9CCD0, { metalness: .7, roughness: .3 }), .22, .55, -.05); ant.rotation.z = -.35;
+      const glow = new THREE.PointLight(0xFFD43B, 0, 2.2, 2); glow.position.set(0, .5, .3); radio.add(glow);
+      shelter.radio = { grp: radio, dial, glow };
+      shelter.radioPos = new THREE.Vector3(1.3, 0, 2.25);
+      shelter.labels.push({ text: '라디오', cls: 'obj', pos: new THREE.Vector3(1.3, .95, 2.25), id: 'radio' });
       // 비상계단(오른쪽 벽)
       box(g, .12, 2.2, 1.3, std(0x587A62), 11.94, 0, 5.2);
       plane(g, 1.3, .46, basic(T.exitSign('비상계단')), 11.86, 2.55, 5.2, -Math.PI / 2);
