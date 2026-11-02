@@ -5,9 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>민방위(가칭) 대피 연습</title>
 <meta name="description" content="공습경보부터 화학 상황, 경보해제까지 대피 1세트를 3D 공간에서 직접 걸으며 연습하는 웹 서비스">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="src/style.css">
 </head>
 <body>
@@ -55,20 +54,20 @@
     <small>건물 단면</small>
     <svg width="120" height="200" viewBox="0 0 120 200" fill="none" role="img" aria-label="건물 단면: 내 위치와 목표 층">
       <rect x="24" y="6" width="72" height="164" rx="2" stroke="#9AAABB" stroke-width="1.5"/>
-      <path d="M24 20h72M24 34h72M24 48h72M24 62h72M24 76h72M24 90h72M24 104h72M24 118h72M24 132h72M24 146h72M24 158h72" stroke="#D6DFE8"/>
+      <path d="M24 20h72M24 34h72M24 48h72M24 62h72M24 76h72M24 90h72M24 104h72M24 118h72M24 132h72M24 146h72M24 158h72" stroke="#4A4F57"/>
       <path d="M4 170h112" stroke="#9AAABB" stroke-width="1.5"/>
       <rect x="24" y="170" width="72" height="24" stroke="#9AAABB" stroke-width="1.5" stroke-dasharray="3 3"/>
       <rect id="mmGas" x="24" y="132" width="72" height="62" fill="#7BCDB2" fill-opacity=".55" visibility="hidden"/>
-      <rect id="mmGoal" x="25" y="21" width="70" height="12" fill="#2F80ED" fill-opacity=".25" visibility="hidden"/>
-      <path id="mmArrow" d="M106 180V30M101 37l5-7 5 7" stroke="#2F80ED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" visibility="hidden"/>
-      <circle id="mmMe" cx="60" cy="41" r="5.5" fill="#22344D"/>
+      <rect id="mmGoal" x="25" y="21" width="70" height="12" fill="#FFD43B" fill-opacity=".3" visibility="hidden"/>
+      <path id="mmArrow" d="M106 180V30M101 37l5-7 5 7" stroke="#FFD43B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" visibility="hidden"/>
+      <circle id="mmMe" cx="60" cy="41" r="5.5" fill="#FFFFFF"/>
       <text x="2" y="44" fill="#7F8C9C" font-size="9">10F</text>
       <text x="2" y="30" fill="#7F8C9C" font-size="9">12F</text>
       <text x="2" y="186" fill="#7F8C9C" font-size="9">B1</text>
     </svg>
     <div class="lg">
-      <span><i style="background:#22344D;border-radius:50%"></i><em id="mmMeLbl" style="font-style:normal">나 · 10층</em></span>
-      <span id="mmGoalLg" hidden><i style="background:#2F80ED"></i>목표 · 높은 층 실내</span>
+      <span><i style="background:#FFFFFF;border-radius:50%"></i><em id="mmMeLbl" style="font-style:normal">나 · 10층</em></span>
+      <span id="mmGoalLg" hidden><i style="background:#FFD43B"></i>목표 · 높은 층 실내</span>
       <span id="mmGasLg" hidden><i style="background:#7BCDB2"></i>가스가 깔리는 곳</span>
     </div>
   </div>
@@ -100,37 +99,35 @@
 
 <div id="lobby" class="overlay dim">
   <div class="card">
-    <h1 class="svc">민방위(가칭)</h1>
-    <span class="eng">MINBANGWI DRILL</span>
-    <p class="tagline">준비만 해봐요. 침착하게, 한 번.</p>
-    <p class="desc">사이렌이 울리면 가방을 챙기고, 계단으로 대피소에 가고, 방송을 듣고 움직여요. 정부의 비상시 국민행동요령을 3D 공간에서 직접 따라 하며 <b>왜 그렇게 움직이는지</b>까지 익혀요.</p>
+    <div class="lobby-head">
+      <h1 class="svc">민방위(가칭)</h1>
+      <span class="eng">CIVIL DEFENSE DRILL · 3D</span>
+    </div>
+    <p class="tagline">듣는 훈련에서, <em>해보는 훈련</em>으로.</p>
+    <p class="desc">사이렌이 울리면 어디로, 왜 움직여야 할까요?<br>정부의 비상시 국민행동요령을 3D 공간에서 직접 걸으며 몸으로 익혀요.</p>
+    <ul class="why3">
+      <li><svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="icClk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE68A"/><stop offset="1" stop-color="#F5B400"/></linearGradient><radialGradient id="icClkF" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#DADDE3"/></radialGradient></defs><ellipse cx="24" cy="44.5" rx="13" ry="2.4" fill="#000" opacity=".35"/><circle cx="24" cy="23.5" r="18" fill="#B87F00"/><circle cx="24" cy="21" r="18" fill="url(#icClk)"/><circle cx="24" cy="21" r="13" fill="url(#icClkF)"/><path d="M24 13v8l5.5 3.5" stroke="#1C1E22" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="24" cy="21" r="2" fill="#1C1E22"/><path d="M11.5 12.5a15 15 0 0 1 9-7" stroke="#FFFFFF" stroke-opacity=".75" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg><div><b>언제든, 몇 번이든</b><span>체험센터는 수와 인원이 한정돼요. 여기선 원할 때마다 반복해요.</span></div></li>
+      <li><svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="icCubT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D4E9FF"/><stop offset="1" stop-color="#9CCBFF"/></linearGradient><linearGradient id="icCubL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6FB1FF"/><stop offset="1" stop-color="#3D86E8"/></linearGradient><linearGradient id="icCubR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3A7BD6"/><stop offset="1" stop-color="#2459A8"/></linearGradient></defs><ellipse cx="24" cy="44.5" rx="14" ry="2.4" fill="#000" opacity=".35"/><path d="M24 4l16 9-16 9-16-9z" fill="url(#icCubT)"/><path d="M8 13l16 9v19L8 32z" fill="url(#icCubL)"/><path d="M40 13l-16 9v19l16-9z" fill="url(#icCubR)"/><path d="M13.5 22.5l7 4.2-7 6.3z" fill="#FFFFFF"/><path d="M24 4l16 9" stroke="#FFFFFF" stroke-opacity=".6" stroke-width="1.2"/></svg><div><b>강의 대신 체험</b><span>민방위 교육 지침도 체험·실습형 교육을 권해요.</span></div></li>
+      <li><svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="icShd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9DF2C6"/><stop offset="1" stop-color="#2FB774"/></linearGradient></defs><ellipse cx="24" cy="45" rx="12" ry="2.3" fill="#000" opacity=".35"/><path d="M24 6l16 6v11c0 10-7 17-16 21C15 40 8 33 8 23V12z" fill="#1E8251"/><path d="M24 3.5l16 6v11c0 10-7 17-16 21C15 37.5 8 30.5 8 20.5v-11z" fill="url(#icShd)"/><path d="M24 3.5v38C15 37.5 8 30.5 8 20.5v-11z" fill="#FFFFFF" opacity=".18"/><path d="M16.5 21.5l5.5 5.5 10-11" stroke="#FFFFFF" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><div><b>해본 사람이 움직여요</b><span>반복 체험이 위기 대응 능력과 자신감을 높여요.</span></div></li>
+    </ul>
     <span class="field-lbl">오늘의 훈련</span>
     <div class="scen">
       <button class="on" aria-pressed="true"><b>공습경보</b><small>화학 상황 포함 · 약 5분</small></button>
       <button disabled><b>핵·방사능</b><small>준비 중</small></button>
       <button disabled><b>건물 화재</b><small>준비 중</small></button>
     </div>
-    <span class="field-lbl">머리 장식</span>
-    <div class="hats" id="hats">
-      <button data-hat="none" aria-pressed="false"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="19" r="11" fill="#EBD5BF"/></svg>없음</button>
-      <button data-hat="helmet" aria-pressed="true"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="21" r="10" fill="#EBD5BF"/><path d="M6 17a11 11 0 0 1 22 0z" fill="#F4C542"/><rect x="3" y="16" width="28" height="3" rx="1.5" fill="#E0AE2A"/></svg>안전모</button>
-      <button data-hat="hood" aria-pressed="false"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><path d="M5 22c0-10 5-16 12-16s12 6 12 16l-4 6H9z" fill="#F2994A"/><circle cx="17" cy="21" r="8" fill="#EBD5BF"/></svg>방재 두건</button>
-      <button data-hat="beanie" aria-pressed="false"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="21" r="10" fill="#EBD5BF"/><path d="M7 18a10 10 0 0 1 20 0z" fill="#6E8FB5"/><circle cx="17" cy="7" r="3" fill="#C9D8EA"/></svg>털모자</button>
-    </div>
-    <label class="field-lbl" for="nick">내 이름</label>
-    <input id="nick" type="text" value="침착한 소나무" maxlength="12" autocomplete="off">
-    <button class="primary" id="enterBtn">들어가기</button>
+    <button class="primary" id="enterBtn">훈련 시작하기</button>
     <details class="info">
       <summary>서비스 안내 · 출처</summary>
       <p>대피 1세트는 공습경보 → 지하 대피소 → 화학 상황에서 다시 위로 → 경보해제 순서예요. 안내원이 다음 행동을 알려주고, 잘못 가면 막고 이유를 설명해요. 함께 있는 이웃은 연습용 가상 인물이에요.</p>
       <p>바닥을 누르거나 WASD로 움직이고, 마우스 오른쪽 버튼으로 끌어서 둘러봐요. 휴대폰에서는 한 손가락으로 끌어 둘러보고, 두 손가락으로 확대/축소해요. 최신 Chrome이나 Safari를 권장해요. 소리가 함께 나와요.</p>
-      <p>행동요령 출처: 행정안전부 『비상시 국민행동요령』(2023). 사용한 오픈소스: three.js r160(MIT), Noto Sans KR(SIL Open Font License 1.1). 사이렌과 효과음은 Web Audio로 직접 합성했고, 음성 안내는 브라우저 내장 음성(Web Speech API)을 써요. <a href="THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener">라이선스 전문 보기</a></p>
+      <p>행동요령 출처: 행정안전부 『비상시 국민행동요령』(2023). 사용한 오픈소스: three.js r160(MIT), Pretendard(SIL Open Font License 1.1). 사이렌과 효과음은 Web Audio로 직접 합성했고, 음성 안내는 브라우저 내장 음성(Web Speech API)을 써요. <a href="THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener">라이선스 전문 보기</a></p>
     </details>
   </div>
 </div>
 
 <div id="trans">
-  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#2F80ED" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h4v-4h4v-4h4V8h4V4"/></svg>
+  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#FFD43B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h4v-4h4v-4h4V8h4V4"/></svg>
   <span class="lbl" id="transLbl">계단으로 내려가는 중</span>
   <span class="floor" id="transFloor">10F</span>
 </div>
@@ -161,7 +158,7 @@
       <h3>행동요령 출처</h3>
       행정안전부 『비상시 국민행동요령』(2023). 화면 속 안내 문구는 이 자료를 바탕으로 요약했고, 쪽수를 함께 적었어요.
       <h3>오픈소스</h3>
-      three.js r160 — MIT License, © 2010-2023 three.js authors<br>Noto Sans KR — SIL Open Font License 1.1, Google Fonts<br>
+      three.js r160 — MIT License, © 2010-2023 three.js authors<br>Pretendard — SIL Open Font License 1.1, © Kil Hyung-jin<br>
       <a href="THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener">라이선스 전문 보기</a>
       <h3>소리</h3>
       사이렌·효과음: Web Audio API로 직접 합성 · 음성 안내: 브라우저 내장 음성(Web Speech API)

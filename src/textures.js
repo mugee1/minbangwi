@@ -104,7 +104,7 @@
     const n = lines.length;
     lines.forEach((l, i) => {
       const main = i === 0;
-      g.font = (main ? '700 ' : '500 ') + Math.round(h * (n === 1 ? .5 : main ? .4 : .17)) + 'px "Noto Sans KR","Malgun Gothic",sans-serif';
+      g.font = (main ? '700 ' : '500 ') + Math.round(h * (n === 1 ? .5 : main ? .4 : .17)) + 'px "Pretendard Variable",Pretendard,"Malgun Gothic",sans-serif';
       g.fillText(l, w / 2, n === 1 ? h * .53 : main ? h * .4 : h * .78);
     });
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
@@ -117,8 +117,8 @@
     g.fillStyle = '#F08A24'; g.beginPath(); g.arc(256, 210, 132, 0, 7); g.fill();
     g.fillStyle = '#FFFFFF'; g.beginPath(); g.arc(256, 210, 92, 0, 7); g.fill();
     g.fillStyle = '#1C5FAE'; g.beginPath(); g.moveTo(256, 135); g.lineTo(330, 262); g.lineTo(182, 262); g.closePath(); g.fill();
-    g.fillStyle = '#FFFFFF'; g.textAlign = 'center'; g.font = '700 104px "Noto Sans KR","Malgun Gothic",sans-serif'; g.fillText('대피소', 256, 470);
-    g.font = '700 46px sans-serif'; g.fillText('SHELTER', 256, 548);
+    g.fillStyle = '#FFFFFF'; g.textAlign = 'center'; g.font = '700 104px "Pretendard Variable",Pretendard,"Malgun Gothic",sans-serif'; g.fillText('대피소', 256, 470);
+    g.font = '700 46px "Pretendard Variable",Pretendard,sans-serif'; g.fillText('SHELTER', 256, 548);
     g.fillRect(40, 580, 432, 3);
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
   };
@@ -131,7 +131,7 @@
     g.fillStyle = '#fff'; g.beginPath(); g.arc(150, 52, 14, 0, 7); g.fill();
     g.lineWidth = 12; g.strokeStyle = '#fff'; g.lineCap = 'round';
     g.beginPath(); g.moveTo(148, 72); g.lineTo(138, 108); g.lineTo(158, 140); g.moveTo(138, 108); g.lineTo(118, 140); g.moveTo(146, 80); g.lineTo(170, 96); g.moveTo(144, 80); g.lineTo(122, 92); g.stroke();
-    g.font = '700 64px "Noto Sans KR","Malgun Gothic",sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, 340, 94);
+    g.font = '700 64px "Pretendard Variable",Pretendard,"Malgun Gothic",sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, 340, 94);
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
   };
   // 원형 그림자/빛 텍스처

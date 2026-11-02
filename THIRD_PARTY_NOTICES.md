@@ -7,10 +7,11 @@
 - Copyright © 2010-2023 three.js authors
 - https://github.com/mrdoob/three.js
 
-## Noto Sans KR
-- 용도: 화면 글꼴 (Google Fonts에서 불러옴)
+## Pretendard v1.3.9
+- 용도: 화면 글꼴 (jsDelivr CDN에서 불러옴)
 - 라이선스: SIL Open Font License 1.1
-- https://fonts.google.com/noto/specimen/Noto+Sans+KR
+- Copyright © 2021 Kil Hyung-jin
+- https://github.com/orioncactus/pretendard
 
 ## Playwright (개발용, 배포 파일에는 포함되지 않음)
 - 용도: `tools/` 자동 테스트와 시연 영상 녹화

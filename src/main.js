@@ -1,5 +1,11 @@
 // 장면 구성, 조작(클릭·WASD·오른쪽 버튼 회전·터치), HUD, 대피 1세트 흐름
+// 표지판 글자를 Pretendard로 그리려고 글꼴을 먼저 불러온 뒤 시작(최대 2초 대기)
 (function () {
+  const go = () => { if (!window.app) startApp(); };
+  if (document.fonts && document.fonts.load) Promise.race([document.fonts.load('700 40px "Pretendard Variable"'), new Promise(r => setTimeout(r, 2000))]).then(go, go);
+  else go();
+})();
+function startApp() {
   'use strict';
   const CFG = MB.config, A = MB.audio, CH = MB.characters;
   const $ = id => document.getElementById(id);
@@ -36,10 +42,8 @@
   const pickables = Object.values(spaces).map(s => s.floor);
 
   /* ---------- 캐릭터 ---------- */
-  let hatChoice = 'helmet';
-  let me = CH.create({ hat: hatChoice }); scene.add(me);
+  let me = CH.create({ hat: 'helmet' }); scene.add(me);
   const guide = CH.create({ shirt: 0x34548A, bottom: 0x2A3F66, hat: 'cap', guide: true, trim: 0xF2994A }); scene.add(guide);
-  function rebuildMe() { const p = me.position.clone(), r = me.rotation.y; scene.remove(me); me = CH.create({ hat: hatChoice }); me.position.copy(p); me.rotation.y = r; scene.add(me); }
 
   /* ---------- 월드 라벨 ---------- */
   const labelsEl = $('labels');
@@ -134,11 +138,11 @@
   $('whyBtn').onclick = () => showCard({ who: '대피 1세트란?', title: '경보 › 지하 › 방송 › 위로 › 밀폐 › 해제', body: '<ul>' + CFG.WHY.map(w => '<li><b>' + w.t + '</b> — ' + w.d + ' <span style="color:var(--faint);font-size:12px">(' + w.p + ')</span></li>').join('') + '</ul>', src: '출처: ' + CFG.SOURCE, btn: '닫기' });
   $('whyGrid').innerHTML = CFG.WHY.map(w => '<div><b>' + w.t + '</b><span>' + w.d + '</span><small>' + w.p + '</small></div>').join('');
 
-  // 로비: 머리 장식
-  document.querySelectorAll('#hats button').forEach(b => b.onclick = () => {
-    document.querySelectorAll('#hats button').forEach(x => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', 'true');
-    hatChoice = b.dataset.hat; rebuildMe();
-  });
+  // 접속할 때마다 이름을 자동으로 붙여요(형용사 + 자연)
+  const NICK_A = ['침착한', '용감한', '든든한', '차분한', '씩씩한', '꼼꼼한', '재빠른', '다정한'];
+  const NICK_B = ['소나무', '다람쥐', '고래', '부엉이', '해바라기', '거북이', '참새', '은행나무'];
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  $('meName').textContent = pick(NICK_A) + ' ' + pick(NICK_B);
 
   /* ---------- 공간 이동 ---------- */
   function placeIn(key) {
@@ -155,7 +159,6 @@
 
   /* ---------- 대피 1세트 흐름 ---------- */
   function enter() {
-    $('meName').textContent = ($('nick').value.trim() || '침착한 소나무').slice(0, 12);
     $('lobby').hidden = true; $('hud').hidden = false;
     A.init();
     S.started = true; S.t0 = performance.now();
@@ -433,4 +436,4 @@
     clickCard() { if (!$('cardWrap').hidden) $('cardBtn').click(); },
     turn(dy) { S.yaw += dy; },
   };
-})();
+}
