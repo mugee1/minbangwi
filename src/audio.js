@@ -1,0 +1,35 @@
+// 소리: 사이렌(파상음)·안내 차임은 Web Audio로 합성, 음성 안내는 브라우저 내장 음성(Web Speech API)
+(function () {
+  let AC = null, master = null, siren = null, muted = false;
+  function init() {
+    if (AC) { if (AC.state === 'suspended') AC.resume(); return; }
+    try { AC = new (window.AudioContext || window.webkitAudioContext)(); master = AC.createGain(); master.gain.value = 1; master.connect(AC.destination); } catch (e) { AC = null; }
+  }
+  function sirenStart() {
+    if (!AC || siren) return;
+    const o = AC.createOscillator(); o.type = 'sawtooth';
+    const f = AC.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 1500;
+    const g = AC.createGain(); g.gain.value = 0;
+    o.connect(f); f.connect(g); g.connect(master); o.start();
+    g.gain.linearRampToValueAtTime(0.06, AC.currentTime + 1.2);
+    siren = { o, g };
+  }
+  function sirenLevel(v) { if (siren) siren.g.gain.linearRampToValueAtTime(v, AC.currentTime + 1.5); }
+  function sirenStop() { if (!siren) return; const s = siren; siren = null; s.g.gain.linearRampToValueAtTime(0, AC.currentTime + 2); setTimeout(() => { try { s.o.stop(); } catch (e) {} }, 2200); }
+  // 파상음: 주파수가 오르내림(약 5초 주기)
+  function tick(t) { if (siren && AC) siren.o.frequency.setTargetAtTime(760 + 340 * Math.sin(t * Math.PI * 2 * 0.2), AC.currentTime, 0.05); }
+  function chime() {
+    if (!AC) return; const t = AC.currentTime;
+    [[659, 0], [880, .28], [988, .56]].forEach(([fr, dt]) => { const o = AC.createOscillator(); o.type = 'sine'; o.frequency.value = fr; const g = AC.createGain(); g.gain.setValueAtTime(0, t + dt); g.gain.linearRampToValueAtTime(.12, t + dt + .03); g.gain.exponentialRampToValueAtTime(.0001, t + dt + .9); o.connect(g); g.connect(master); o.start(t + dt); o.stop(t + dt + 1); });
+  }
+  function click() {
+    if (!AC) return; const t = AC.currentTime, o = AC.createOscillator(), g = AC.createGain();
+    o.type = 'triangle'; o.frequency.value = 520; g.gain.setValueAtTime(.06, t); g.gain.exponentialRampToValueAtTime(.0001, t + .15); o.connect(g); g.connect(master); o.start(t); o.stop(t + .16);
+  }
+  function speak(text) {
+    if (muted || !('speechSynthesis' in window)) return;
+    try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'ko-KR'; u.rate = 1; const v = speechSynthesis.getVoices().find(v => /ko/i.test(v.lang)); if (v) u.voice = v; speechSynthesis.speak(u); } catch (e) {}
+  }
+  function setMuted(m) { muted = m; if (master) master.gain.value = m ? 0 : 1; if (m && 'speechSynthesis' in window) speechSynthesis.cancel(); }
+  MB.audio = { init, sirenStart, sirenLevel, sirenStop, tick, chime, click, speak, setMuted, get muted() { return muted; } };
+})();

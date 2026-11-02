@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>민방위(가칭) 대피 연습</title>
+<meta name="description" content="공습경보부터 화학 상황, 경보해제까지 대피 1세트를 3D 공간에서 직접 걸으며 연습하는 웹 서비스">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+<!--BODY_START-->
+<canvas id="c" tabindex="0" aria-label="3D 대피 연습 공간"></canvas>
+<div id="labels" aria-hidden="true"></div>
+
+<div id="hud" hidden>
+  <section id="placeCard" class="panel" aria-label="현재 장소">
+    <span class="eyebrow">CIVIL DEFENSE DRILL</span>
+    <div class="ttl"><strong id="placeName">우리 집</strong><span id="placeSub">10층 거실</span></div>
+    <span class="ppl"><i></i><span id="pplLine">이 장소 2명 · 안내원이 함께 있어요</span></span>
+    <span class="note" id="placeNote">함께 있는 이웃은 연습용 가상 인물이에요.</span>
+    <button class="exit" id="exitBtn" aria-label="처음으로"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </section>
+
+  <section id="statCard" class="panel" aria-label="대피 상태">
+    <div class="top">
+      <div><div class="big" id="bigVal">10<small>F</small></div><div class="kind" id="bigKind">현재 위치</div></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="ghost" id="soundBtn">소리 끄기</button><button class="ghost" id="collapse" aria-expanded="false">펼치기</button></div>
+    </div>
+    <div class="more">
+      <div class="meta"><span>경보 <b id="metaAlert">없음</b></span><span>경과 <b id="metaTime">00:00</b></span></div>
+    </div>
+    <div class="more prog">
+      <span class="barlbl">대피 1세트</span>
+      <div class="bar"><i id="barFill"></i></div>
+      <div id="chips"></div>
+    </div>
+    <div class="row more"><button class="ghost" id="whyBtn">왜 이렇게 움직이나요?</button></div>
+  </section>
+
+  <div id="alert" hidden><span id="alertIcon"></span><strong id="alertTitle"></strong><span id="alertSub"></span></div>
+  <div id="hint" hidden></div>
+  <div id="toast" class="panel" hidden></div>
+
+  <div id="checklist" class="panel" hidden>
+    <small>바깥 공기 막기</small>
+    <div data-k="window"><i></i>창문 닫기</div>
+    <div data-k="door"><i></i>문틈 테이프로 막기</div>
+    <div data-k="vent"><i></i>환풍기 끄기</div>
+  </div>
+
+  <div id="minimap" class="panel" hidden>
+    <small>건물 단면</small>
+    <svg width="120" height="200" viewBox="0 0 120 200" fill="none" role="img" aria-label="건물 단면: 내 위치와 목표 층">
+      <rect x="24" y="6" width="72" height="164" rx="2" stroke="#8C7C6C" stroke-width="1.5"/>
+      <path d="M24 20h72M24 34h72M24 48h72M24 62h72M24 76h72M24 90h72M24 104h72M24 118h72M24 132h72M24 146h72M24 158h72" stroke="#4E433A"/>
+      <path d="M4 170h112" stroke="#8C7C6C" stroke-width="1.5"/>
+      <rect x="24" y="170" width="72" height="24" stroke="#8C7C6C" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <rect id="mmGas" x="24" y="132" width="72" height="62" fill="#3C8572" fill-opacity=".55" visibility="hidden"/>
+      <rect id="mmGoal" x="25" y="21" width="70" height="12" fill="#F2994A" fill-opacity=".35" visibility="hidden"/>
+      <path id="mmArrow" d="M106 180V30M101 37l5-7 5 7" stroke="#F2994A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" visibility="hidden"/>
+      <circle id="mmMe" cx="60" cy="41" r="5.5" fill="#F7F1E9"/>
+      <text x="2" y="44" fill="#A99A8A" font-size="9">10F</text>
+      <text x="2" y="30" fill="#A99A8A" font-size="9">12F</text>
+      <text x="2" y="186" fill="#A99A8A" font-size="9">B1</text>
+    </svg>
+    <div class="lg">
+      <span><i style="background:#F7F1E9;border-radius:50%"></i><em id="mmMeLbl" style="font-style:normal">나 · 10층</em></span>
+      <span id="mmGoalLg" hidden><i style="background:#F2994A"></i>목표 · 높은 층 실내</span>
+      <span id="mmGasLg" hidden><i style="background:#3C8572"></i>가스가 깔리는 곳</span>
+    </div>
+  </div>
+
+  <div id="controls">바닥 클릭 · WASD로 이동<br>오른쪽 버튼 드래그로 둘러보기 · 휠로 확대/축소<br>1 · 2 · 3 동작 · B 방송 듣기</div>
+
+  <nav id="bottom" class="panel" aria-label="동작">
+    <button class="act" id="act1" data-a="1"><kbd>1</kbd><span>가방 챙기기</span></button>
+    <button class="act" id="act2" data-a="2"><kbd>2</kbd><span>코·입 가리기</span></button>
+    <button class="act" id="act3" data-a="3"><kbd>3</kbd><span>몸 낮추기</span></button>
+    <span class="sep"></span>
+    <button class="act" id="listen"><kbd>B</kbd><span>방송 듣기</span></button>
+    <span class="sep"></span>
+    <button class="act" id="moreBtn"><span>더보기</span></button>
+  </nav>
+</div>
+
+<div id="big" class="bigtitle" hidden><h1 id="bigH"></h1><p id="bigP"></p></div>
+
+<div id="cardWrap" class="overlay" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="cardTitle">
+    <span class="who" id="cardWho">안내원</span>
+    <h2 id="cardTitle"></h2>
+    <div id="cardBody"></div>
+    <span class="src" id="cardSrc"></span>
+    <button class="primary" id="cardBtn">알겠어요</button>
+  </div>
+</div>
+
+<div id="lobby" class="overlay dim">
+  <div class="card">
+    <h1 class="svc">민방위(가칭)</h1>
+    <span class="eng">MINBANGWI DRILL</span>
+    <p class="tagline">준비만 해봐요. 침착하게, 한 번.</p>
+    <p class="desc">사이렌이 울리면 가방을 챙기고, 계단으로 대피소에 가고, 방송을 듣고 움직여요. 정부의 비상시 국민행동요령을 3D 공간에서 직접 따라 하며 <b>왜 그렇게 움직이는지</b>까지 익혀요.</p>
+    <span class="field-lbl">오늘의 훈련</span>
+    <div class="scen">
+      <button class="on" aria-pressed="true"><b>공습경보</b><small>화학 상황 포함 · 약 5분</small></button>
+      <button disabled><b>핵·방사능</b><small>준비 중</small></button>
+      <button disabled><b>건물 화재</b><small>준비 중</small></button>
+    </div>
+    <span class="field-lbl">머리 장식</span>
+    <div class="hats" id="hats">
+      <button data-hat="none" aria-pressed="false"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="19" r="11" fill="#EBD5BF"/></svg>없음</button>
+      <button data-hat="helmet" aria-pressed="true"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="21" r="10" fill="#EBD5BF"/><path d="M6 17a11 11 0 0 1 22 0z" fill="#F4C542"/><rect x="3" y="16" width="28" height="3" rx="1.5" fill="#E0AE2A"/></svg>안전모</button>
+      <button data-hat="hood" aria-pressed="false"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><path d="M5 22c0-10 5-16 12-16s12 6 12 16l-4 6H9z" fill="#F2994A"/><circle cx="17" cy="21" r="8" fill="#EBD5BF"/></svg>방재 두건</button>
+      <button data-hat="beanie" aria-pressed="false"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="21" r="10" fill="#EBD5BF"/><path d="M7 18a10 10 0 0 1 20 0z" fill="#6E8FB5"/><circle cx="17" cy="7" r="3" fill="#C9D8EA"/></svg>털모자</button>
+    </div>
+    <label class="field-lbl" for="nick">내 이름</label>
+    <input id="nick" type="text" value="침착한 소나무" maxlength="12" autocomplete="off">
+    <button class="primary" id="enterBtn">들어가기</button>
+    <details class="info">
+      <summary>서비스 안내 · 출처</summary>
+      <p>대피 1세트는 공습경보 → 지하 대피소 → 화학 상황에서 다시 위로 → 경보해제 순서예요. 안내원이 다음 행동을 알려주고, 잘못 가면 막고 이유를 설명해요. 함께 있는 이웃은 연습용 가상 인물이에요.</p>
+      <p>바닥을 누르거나 WASD로 움직이고, 마우스 오른쪽 버튼으로 끌어서 둘러봐요. 휴대폰에서는 한 손가락으로 끌어 둘러보고, 두 손가락으로 확대/축소해요. 최신 Chrome이나 Safari를 권장해요. 소리가 함께 나와요.</p>
+      <p>행동요령 출처: 행정안전부 『비상시 국민행동요령』(2023). 사용한 오픈소스: three.js r160(MIT), Noto Sans KR(SIL Open Font License 1.1). 사이렌과 효과음은 Web Audio로 직접 합성했고, 음성 안내는 브라우저 내장 음성(Web Speech API)을 써요. <a href="THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener">라이선스 전문 보기</a></p>
+    </details>
+  </div>
+</div>
+
+<div id="trans">
+  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#F2994A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h4v-4h4v-4h4V8h4V4"/></svg>
+  <span class="lbl" id="transLbl">계단으로 내려가는 중</span>
+  <span class="floor" id="transFloor">10F</span>
+</div>
+
+<div id="final" class="overlay dim" hidden>
+  <div class="card">
+    <span class="who">대피 1세트 완료</span>
+    <h2>오늘의 대피를 마쳤어요</h2>
+    <div class="stats">
+      <div><small>걸린 시간</small><b id="statTime">-</b></div>
+      <div><small>안내를 받은 횟수</small><b id="statHelp">-</b></div>
+      <div><small>익힌 행동</small><b>4가지</b></div>
+    </div>
+    <p style="font-size:14px;color:var(--sub)">따라 하기만 하지 않고, 왜 그렇게 움직이는지 기억해 두세요.</p>
+    <div class="why-grid" id="whyGrid"></div>
+    <span class="src">출처: 행정안전부 『비상시 국민행동요령』(2023)</span>
+    <div class="btnrow"><button class="secondary" id="againBtn">처음부터 다시</button><button class="secondary" disabled>다음 훈련 · 준비 중</button></div>
+  </div>
+</div>
+
+<div id="moreWrap" class="overlay dim" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="moreTitle">
+    <span class="who">더보기</span>
+    <h2 id="moreTitle">조작법과 출처</h2>
+    <div class="credits">
+      <h3>조작법</h3>
+      바닥 클릭 · WASD/방향키로 이동<br>마우스 오른쪽 버튼 드래그로 둘러보기 · 휠로 확대/축소<br>휴대폰: 탭으로 이동 · 한 손가락 드래그로 둘러보기 · 두 손가락으로 확대/축소<br>1 가방 챙기기 · 2 코·입 가리기 · 3 몸 낮추기 · B 방송 듣기
+      <h3>행동요령 출처</h3>
+      행정안전부 『비상시 국민행동요령』(2023). 화면 속 안내 문구는 이 자료를 바탕으로 요약했고, 쪽수를 함께 적었어요.
+      <h3>오픈소스</h3>
+      three.js r160 — MIT License, © 2010-2023 three.js authors<br>Noto Sans KR — SIL Open Font License 1.1, Google Fonts<br>
+      <a href="THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener">라이선스 전문 보기</a>
+      <h3>소리</h3>
+      사이렌·효과음: Web Audio API로 직접 합성 · 음성 안내: 브라우저 내장 음성(Web Speech API)
+      <h3>알아두기</h3>
+      이 서비스는 연습용 프로토타입이에요. 실제 상황에서는 정부 안내방송과 재난문자를 따라 주세요. 함께 있는 이웃은 가상 인물이에요.
+    </div>
+    <div class="btnrow"><button class="secondary" id="soundBtn2">소리 끄기</button><button class="primary" id="moreClose">닫기</button></div>
+  </div>
+</div>
+<!--BODY_END-->
+
+<script src="vendor/three.min.js"></script>
+<script src="src/config.js"></script>
+<script src="src/textures.js"></script>
+<script src="src/characters.js"></script>
+<script src="src/world.js"></script>
+<script src="src/audio.js"></script>
+<script src="src/main.js"></script>
+</body>
+</html>
