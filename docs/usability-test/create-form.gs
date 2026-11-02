@@ -16,7 +16,7 @@ function createMusaiForm() {
   form.setDescription(
     '3D 공간에서 걸으며 대피 순서를 익히는 웹 서비스 "무사이"를 써 보고 의견을 남겨 주세요.\n' +
     '· 소요 시간: 약 15분 (서비스 체험 8~10분 + 설문 5분)\n' +
-    '· 이름·연락처 같은 개인정보는 받지 않아요.\n' +
+    '· 이름·연락처 같은 개인정보는 받지 않아요. 응답은 서비스 개선과 수업 발표 자료(통계)에만 쓰여요.\n' +
     '· 정답을 맞히는 시험이 아니에요. 헷갈린 곳은 서비스를 고칠 단서가 돼요.'
   );
   form.setCollectEmail(false);
@@ -25,20 +25,8 @@ function createMusaiForm() {
 
   const AGREE5 = ['전혀 아니에요', '아니에요', '보통이에요', '그래요', '매우 그래요'];
 
-  // ── 1. 참여 동의 ─────────────────────────────
-  const consent = form.addMultipleChoiceItem()
-    .setTitle('응답은 서비스 개선과 수업 발표 자료(통계)에만 쓰여요. 참여에 동의하나요?')
-    .setRequired(true);
-  consent.setChoices([
-    consent.createChoice('동의해요', FormApp.PageNavigationType.CONTINUE),
-    consent.createChoice('동의하지 않아요', FormApp.PageNavigationType.SUBMIT),
-  ]);
-  form.addTextItem()
-    .setTitle('참가자 번호')
-    .setHelpText('진행자가 알려 준 번호를 적어 주세요. 예: P1 (없으면 비워 두세요)');
-
-  // ── 2. 참가자 정보 ───────────────────────────
-  form.addPageBreakItem().setTitle('나에 대해 알려 주세요');
+  // ── 1. 참가자 정보 (첫 페이지: 폼 설명 바로 아래) ──────────
+  form.addSectionHeaderItem().setTitle('나에 대해 알려 주세요');
   form.addMultipleChoiceItem().setTitle('나이대').setRequired(true)
     .setChoiceValues(['10대 이하', '20대', '30대', '40대', '50대 이상']);
   form.addMultipleChoiceItem().setTitle('어떤 기기로 체험하나요?').setRequired(true)
@@ -48,7 +36,7 @@ function createMusaiForm() {
   form.addMultipleChoiceItem().setTitle('민방위 훈련이나 학교·회사 대피 훈련에 참여해 본 적 있나요?').setRequired(true)
     .setChoiceValues(['없어요', '1~2번', '3번 이상']);
 
-  // ── 3. 체험 전 퀴즈 (학습 효과 비교용) ──────────
+  // ── 2. 체험 전 퀴즈 (학습 효과 비교용) ──────────
   form.addPageBreakItem()
     .setTitle('체험 전 퀴즈')
     .setHelpText('지금 알고 있는 대로 골라 주세요. 모르면 "잘 모르겠어요"를 골라도 괜찮아요.');
@@ -57,19 +45,19 @@ function createMusaiForm() {
     .setTitle('[체험 전] 공습경보가 울리면 무엇을 해야 하는지 알고 있어요.')
     .setBounds(1, 5).setLabels('전혀 모르겠어요', '잘 알고 있어요').setRequired(true);
 
-  // ── 4. 서비스 체험 안내 ───────────────────────
+  // ── 3. 서비스 체험 안내 ───────────────────────
   form.addPageBreakItem()
     .setTitle('이제 무사이를 체험해 주세요')
     .setHelpText(
       '아래 주소를 새 창에서 열고, "대피 1세트 완료" 화면이 나올 때까지 진행해 주세요.\n' +
       APP_URL + '\n\n' +
       '· 소리를 켜 주세요 (사이렌·안내 방송이 나와요).\n' +
-      '· 완료 화면의 "걸린 시간"과 "안내를 받은 횟수"를 기억해 두세요.\n' +
+      '· 완료 화면의 "걸린 시간"을 기억해 두세요.\n' +
       '· 도중에 막혀서 더 못 하겠다면 그만두고 돌아와도 괜찮아요.\n' +
       '다 했으면 "다음"을 눌러 주세요.'
     );
 
-  // ── 5. 과업 수행 ─────────────────────────────
+  // ── 4. 과업 수행 ─────────────────────────────
   form.addPageBreakItem().setTitle('체험 결과');
   form.addMultipleChoiceItem().setTitle('어디까지 진행했나요?').setRequired(true)
     .setChoiceValues([
@@ -80,13 +68,9 @@ function createMusaiForm() {
       '화생방 단계에서 멈췄어요 (코·입 가리기 · 위층 이동)',
       '바깥 공기 막기에서 멈췄어요 (창문 · 문틈 · 환풍기)',
     ]);
-  form.addTextItem().setTitle('완료 화면의 "걸린 시간" — 분')
-    .setHelpText('끝까지 못 했다면 비워 두세요.')
+  form.addTextItem().setTitle('완료 화면의 "걸린 시간" (분)')
+    .setHelpText('분 단위 숫자로 적어 주세요. 초는 반올림해요. 예: 2분 40초 → 3, 2분 10초 → 2 (끝까지 못 했다면 비워 두세요)')
     .setValidation(FormApp.createTextValidation().requireNumberBetween(0, 60).setHelpText('0~60 사이 숫자로 적어 주세요.').build());
-  form.addTextItem().setTitle('완료 화면의 "걸린 시간" — 초')
-    .setValidation(FormApp.createTextValidation().requireNumberBetween(0, 59).setHelpText('0~59 사이 숫자로 적어 주세요.').build());
-  form.addTextItem().setTitle('완료 화면의 "안내를 받은 횟수"')
-    .setValidation(FormApp.createTextValidation().requireNumberBetween(0, 50).setHelpText('숫자로 적어 주세요.').build());
   form.addMultipleChoiceItem().setTitle('복도에서 처음 고른 길은 무엇이었나요?').setRequired(true)
     .setChoiceValues(['비상계단', '엘리베이터', '기억이 안 나요 / 거기까지 못 갔어요']);
   form.addGridItem()
@@ -115,7 +99,7 @@ function createMusaiForm() {
     .setChoiceValues(['문제 없었어요', '화면이 느리거나 끊겼어요', '소리가 안 났어요', '글자나 버튼이 화면 밖으로 나갔어요', '화면이 하얗게/까맣게 나왔어요'])
     .showOtherOption(true);
 
-  // ── 6. 체험 후 퀴즈 ──────────────────────────
+  // ── 5. 체험 후 퀴즈 ──────────────────────────
   form.addPageBreakItem()
     .setTitle('체험 후 퀴즈')
     .setHelpText('체험 전과 같은 문제예요. 지금 생각대로 골라 주세요.');
@@ -124,7 +108,7 @@ function createMusaiForm() {
     .setTitle('[체험 후] 공습경보가 울리면 무엇을 해야 하는지 알고 있어요.')
     .setBounds(1, 5).setLabels('전혀 모르겠어요', '잘 알고 있어요').setRequired(true);
 
-  // ── 7. 화면 · 디자인 평가 ─────────────────────
+  // ── 6. 화면 · 디자인 평가 ─────────────────────
   form.addPageBreakItem().setTitle('화면과 디자인');
   form.addGridItem()
     .setTitle('얼마나 그런가요?')
@@ -146,7 +130,7 @@ function createMusaiForm() {
   form.addScaleItem().setTitle('무사이는 쓰기 쉬워요.')
     .setBounds(1, 7).setLabels('전혀 아니에요', '매우 그래요').setRequired(true);
 
-  // ── 8. 마지막 의견 ───────────────────────────
+  // ── 7. 마지막 의견 ───────────────────────────
   form.addPageBreakItem().setTitle('마지막으로');
   form.addParagraphTextItem().setTitle('가장 좋았던 점은 무엇인가요?');
   form.addParagraphTextItem().setTitle('딱 하나만 바꾼다면 무엇을 바꾸고 싶나요?');
