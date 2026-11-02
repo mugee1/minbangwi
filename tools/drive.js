@@ -14,6 +14,7 @@ module.exports = async function drive(p, shot){
   await p.evaluate(()=>app.clickCard()); await step('shelter'); await W(1800); await shot('shelter');
   await p.evaluate(()=>app.walkHS('mat')); await step('radio'); await W(1800); await shot('radio');
   await p.keyboard.press('b'); await step('radioOn'); await W(1500); await shot('radioOn');
+  await until(()=>app.state.step==='airClear'); await W(1500); await shot('airClear');
   await until(()=>!document.getElementById('cardWrap').hidden); await W(1000); await shot('chem');
   await p.evaluate(()=>app.clickCard()); await W(1500);
   await p.keyboard.press('2'); await W(2000); await shot('mask');

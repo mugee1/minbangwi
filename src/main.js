@@ -42,7 +42,7 @@ function startApp() {
   const pickables = Object.values(spaces).map(s => s.floor);
 
   /* ---------- 캐릭터 ---------- */
-  let me = CH.create({ hat: 'helmet', animal: 'tiger', crossBag: true }); scene.add(me); // 사용자: 노란 호랑이(외형 고정)
+  let me = CH.create({ hat: 'helmet', hatColor: 'white', animal: 'tiger', crossBag: true }); scene.add(me); // 사용자: 노란 호랑이(외형 고정)
   const guide = CH.create({ shirt: 0x34548A, bottom: 0x2A3F66, hat: 'cap', guide: true, trim: 0xF2994A }); scene.add(guide);
 
   /* ---------- 월드 라벨 ---------- */
@@ -170,11 +170,11 @@ function startApp() {
     placeIn('home'); setStep(0); setAlert(null);
     say(isTouch ? '어서 와요. 바닥을 눌러 걸어 보세요. 한 손가락으로 끌면 둘러볼 수 있어요.' : '어서 와요. 바닥을 누르거나 WASD로 집 안을 걸어 보세요.');
     canvas.focus();
-    setTimeout(() => { if (S.step === 'calm') startAlarm(); }, 20000); // 집 안을 걸으며 조작을 익히는 시간
+    setTimeout(() => { if (S.step === 'calm') startAlarm(); }, 15000); // 훈련 시작 버튼 뒤 15초(20초 이내) — 그동안 걸으며 조작을 익혀요
   }
   function startAlarm() {
     if (S.step !== 'calm') return;
-    S.step = 'alarm'; S.alarmT = performance.now(); setStep(1);
+    S.step = 'alarm'; S.alarmT = performance.now(); S.airCleared = false; setStep(1);
     setAlert('alarm', '공습경보', '사이렌 3분 파상음 · 적의 공격이 긴박하거나 진행 중');
     A.sirenStart(); A.speak('공습경보. 공습경보. 지금 즉시 대피하십시오.');
     big('공습경보', '침착하게, 하나씩 해요', 2600);
@@ -225,7 +225,7 @@ function startApp() {
     say('대피소에서는 <b>정부 방송</b>을 들으며 기다려요. 옆의 <b>라디오</b>를 누르거나 <b>방송 듣기</b>로 켜 볼까요?'); need('B');
     activate([HS.radio]);
   }
-  // 라디오를 켜면 평상 안내방송이 나오고, 잠시 뒤 화생방경보로 바뀌어요
+  // 라디오를 켜면 평상 안내방송 → 15초 뒤 공습경보 해제 → 그 뒤 20초 안에 화생방경보
   function radioOn() {
     if (S.step !== 'radio') return;
     S.step = 'radioOn'; need(null); setTarget(null); A.click();
@@ -234,24 +234,32 @@ function startApp() {
     setTimeout(() => A.speak('정부 안내방송입니다. 현재 공습경보가 발령 중입니다. 대피소에서 안내에 따라 침착하게 기다려 주십시오.'), 400);
     setAlert('alarm', '공습경보', '라디오 · "대피소에서 침착하게 기다려 주십시오"');
     say('잘 켰어요. 상황이 바뀌면 방송도 바뀌어요. 귀 기울여 들어요.');
-    setTimeout(() => { if (S.step === 'radioOn') say('기다리는 동안에도 방송에 계속 귀 기울여요. 방송이 바뀌면 해야 할 일도 바뀌어요.'); }, 10000);
-    setTimeout(() => { if (S.step === 'radioOn') broadcastChem(); }, 20000); // 라디오를 켜고 20초 뒤 화생방경보
+    setTimeout(() => { if (S.step === 'radioOn') say('기다리는 동안에도 방송에 계속 귀 기울여요. 방송이 바뀌면 해야 할 일도 바뀌어요.'); }, 8000);
+    setTimeout(() => { if (S.step === 'radioOn') broadcastAirClear(); }, 15000); // 라디오를 켜고 15초 뒤 공습경보 해제
+  }
+  function broadcastAirClear() {
+    S.step = 'airClear'; S.airCleared = true; // 붉은 깜빡임도 여기서 꺼져요
+    A.chime(); setTimeout(() => A.speak('공습경보 해제. 적의 공격이 끝났습니다. 추가 공격에 대비해 정부 안내방송을 계속 청취하십시오.'), 900);
+    setAlert('clear', '공습경보 해제', '라디오 · "정부 안내방송을 계속 청취하십시오"');
+    toast('<b>공습경보 해제</b> · 공격이 끝났다는 방송이에요');
+    say('공습경보가 해제됐어요. 그래도 다른 경보가 나올 수 있으니 <b>방송을 계속 들어요.</b>');
+    setTimeout(() => { if (S.step === 'airClear') broadcastChem(); }, 18000); // 해제 뒤 20초 안에 화생방경보
   }
   function listen() {
     if (S.step === 'radio') return radioOn();
-    if (S.step === 'radioOn') return toast('라디오 방송을 듣고 있어요');
+    if (S.step === 'radioOn' || S.step === 'airClear') return toast('라디오 방송을 듣고 있어요');
     if (S.step === 'clearWait') return finishClear();
     toast(S.step === 'calm' ? '평소에 TV·라디오와 재난문자 알림을 켜 두면 좋아요' : '지금은 새 방송이 없어요');
   }
   function broadcastChem() {
     S.step = 'chem'; need(null); setStep(4);
-    A.chime(); setTimeout(() => A.speak('화생방 경보. 화학 공격이 확인되었습니다. 코와 입을 가리고, 높은 층 실내로 대피하십시오.'), 900);
+    A.warnTone(); setTimeout(() => A.speak('화생방 경보. 화학 공격이 확인되었습니다. 코와 입을 가리고, 높은 층 실내로 대피하십시오.'), 1700);
     setAlert('chem', '화생방경보', '음성방송 · "화학 공격이 확인되었습니다"');
     S.gasOn = true;
     ['mmGas', 'mmGoal', 'mmArrow'].forEach(id => $(id).setAttribute('visibility', 'visible')); $('mmGasLg').hidden = false; $('mmGoalLg').hidden = false;
     setTimeout(() => {
       big('이번엔 다시 위로', '방금 내려온 길과 반대 방향이에요');
-      showCard({ title: '왜 위로 갈까요?', body: '<p>전쟁에 쓰이는 화학 무기는 공기보다 무거워 <b>아래로 가라앉아요.</b> 바깥 공기를 막을 수 있는 <b>높은 층 실내</b>가 더 안전해요.</p>', src: src('20쪽'),
+      showCard({ title: '왜 위로 갈까요?', body: '<p>전쟁에 쓰이는 화학 무기는 공기보다 무거워 <b>아래로 가라앉아요.</b> 바깥 공기를 막을 수 있는 <b>높은 층 실내</b>가 더 안전해요.</p><p style="margin-top:10px;font-size:13.5px;color:var(--sub)">화생방경보는 <b>사이렌 없이</b> 라디오·TV·확성기 <b>음성방송</b>으로 알려요.</p>', src: src('20쪽'),
         onClose: () => { $('big').hidden = true; say('올라가기 전에 <b>2번</b>을 눌러 코와 입을 가려요.'); need(2); S.step = 'mask'; } });
     }, 1800);
   }
@@ -416,8 +424,8 @@ function startApp() {
     }
     if (clickMark.material.opacity > 0) { clickMark.material.opacity -= dt * 1.6; clickMark.scale.multiplyScalar(1 + dt * 1.2); }
     if (S.fanOn) W.high.fan.rotation.x += dt * 9;
-    // 공습경보 중 창밖 붉은 경고등(2.4초 주기로 천천히) — 경보해제 방송 전까지 계속
-    { const alarmOn = S.alarmT && S.step !== 'clearWait' && S.step !== 'done', k = .5 + .5 * Math.sin(t * Math.PI * 2 / 2.4);
+    // 공습경보 중 창밖 붉은 경고등(2.4초 주기로 천천히) — 공습경보 해제 방송 전까지 계속
+    { const alarmOn = S.alarmT && !S.airCleared, k = .5 + .5 * Math.sin(t * Math.PI * 2 / 2.4);
       ['home', 'hall', 'shelter', 'high'].forEach(key => W[key].alarmFx.set(alarmOn && S.space === key, k)); }
     if (S.closeWin) W.high.pane.position.x += (W.high.paneClosedX - W.high.pane.position.x) * Math.min(1, dt * 4);
     if (S.gasOn && W.shelter.gas.material.opacity < .18) W.shelter.gas.material.opacity += dt * .05;

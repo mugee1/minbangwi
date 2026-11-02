@@ -120,14 +120,16 @@
     const lg = mesh(new THREE.CircleGeometry(0.045, 20), new THREE.MeshBasicMaterial({ map: logoTex, toneMapped: false }), pouch, 0, -0.02, 0.047); lg.castShadow = false;
   }
 
-  function makeHat(type, root) {
+  // hatColor 'white': 노란 호랑이와 구분되는 흰 안전모
+  function makeHat(type, root, hatColor) {
     const hat = new THREE.Group(); hat.position.y = 1.12; root.add(hat);
     if (type === 'helmet') {
-      const dome = mesh(new THREE.SphereGeometry(0.45, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), m(0xF4C542, { roughness: .45 }), hat, 0, 0.08, 0);
+      const [c0, c1, c2] = hatColor === 'white' ? [0xF8F8F5, 0xDCDDD8, 0xE9EAE6] : [0xF4C542, 0xE0AE2A, 0xE9B832];
+      const dome = mesh(new THREE.SphereGeometry(0.45, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), m(c0, { roughness: .45 }), hat, 0, 0.08, 0);
       dome.scale.set(1, .9, 1);
-      mesh(new THREE.CylinderGeometry(0.52, 0.52, 0.04, 32), m(0xE0AE2A, { roughness: .5 }), hat, 0, 0.08, 0.04);
-      mesh(new THREE.BoxGeometry(0.06, 0.04, 0.8), m(0xE9B832), hat, 0, 0.45, 0).rotation.x = 0;
-      mesh(new THREE.TorusGeometry(0.2, 0.028, 8, 20, Math.PI), m(0xE0AE2A), hat, 0, 0.36, 0).rotation.y = Math.PI / 2;
+      mesh(new THREE.CylinderGeometry(0.52, 0.52, 0.04, 32), m(c1, { roughness: .5 }), hat, 0, 0.08, 0.04);
+      mesh(new THREE.BoxGeometry(0.06, 0.04, 0.8), m(c2), hat, 0, 0.45, 0).rotation.x = 0;
+      mesh(new THREE.TorusGeometry(0.2, 0.028, 8, 20, Math.PI), m(c1), hat, 0, 0.36, 0).rotation.y = Math.PI / 2;
     } else if (type === 'hood') {
       // 방재 두건: 푹신한 방석 모양
       const h = mesh(new THREE.SphereGeometry(0.5, 28, 20, 0, Math.PI * 2, 0, Math.PI * .62), m(0xF2994A), hat, 0, -0.02, -0.04);
@@ -148,7 +150,7 @@
     return hat;
   }
 
-  // opts: { shirt, bottom, hat, scale, guide, animal, crossBag, width }
+  // opts: { shirt, bottom, hat, hatColor, scale, guide, animal, crossBag, width }
   function create(opts) {
     const o = Object.assign({ shirt: 0xF2B84B, bottom: 0x9A6B47, hat: 'none', scale: 1 }, opts || {});
     const root = new THREE.Group();
@@ -198,7 +200,7 @@
     mask.visible = false;
     // 머리 장식
     body.updateMatrixWorld();
-    const hatG = makeHat(o.hat, body);
+    const hatG = makeHat(o.hat, body, o.hatColor);
     // 비상 가방(등)
     const bag = new THREE.Group(); bag.position.set(0, 0.6, -0.33); body.add(bag);
     mesh(new THREE.BoxGeometry(0.44, 0.48, 0.22), m(0x5E7050), bag);
