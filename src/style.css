@@ -105,6 +105,12 @@ kbd{font-family:inherit;font-size:11px;line-height:1;padding:3px 6px;border-radi
 #controls{position:fixed;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));padding:10px 14px;border-radius:14px;background:var(--panel-solid);border:1px solid var(--line);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:13.5px;line-height:1.8;color:var(--sub);z-index:3;pointer-events:none}
 #controls b{color:var(--text);font-weight:600;margin-right:6px}
 #controls kbd{margin-right:2px}
+#controls .touch{display:none}
+/* 방송 대기: 경보 표시 안 '다음 방송까지 N초' + 줄어드는 바 */
+#alert .wait{display:flex;align-items:center;gap:8px;margin-left:2px;padding-left:10px;border-left:1px solid currentColor}
+#alert .wait em{font-style:normal;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+#alert .wait .track{display:block;width:72px;height:6px;border-radius:3px;background:rgba(0,0,0,.16);overflow:hidden}
+#alert .wait .track i{display:block;height:100%;background:currentColor;border-radius:3px}
 
 #minimap{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:calc(300px + env(safe-area-inset-top,0px));width:150px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;z-index:4}
 #minimap small{font-size:12px;color:var(--sub)}
@@ -205,6 +211,10 @@ details.info a{color:rgba(255,212,59,.7)}
   #alert span{display:none}
   #toast{top:calc(112px + env(safe-area-inset-top,0px));font-size:13.5px;padding:9px 14px}
   #controls,#minimap{display:none}
+  /* 휴대폰: 시작 후 경보 전까지(조작을 익히는 15초) 터치 조작법을 말풍선 위에 보여요 */
+  body.intro #controls{display:block;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(140px + var(--dock-h,96px) + env(safe-area-inset-bottom,0px));border-color:var(--edge)}
+  #controls .pc{display:none}
+  #controls .touch{display:block}
   #checklist{top:auto;bottom:calc(140px + var(--dock-h,96px) + env(safe-area-inset-bottom,0px));min-width:0;padding:10px 12px}
   /* 안내원 말풍선: 동작 바 위에 고정(목표를 가리지 않게) */
   .bubble.dock{position:fixed;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));top:auto;bottom:calc(128px + env(safe-area-inset-bottom,0px));transform:none;width:auto;max-width:none;padding:11px 15px;font-size:14px;z-index:5}

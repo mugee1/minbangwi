@@ -39,7 +39,7 @@
     <div class="row more"><button class="ghost" id="whyBtn">왜 이렇게 움직이나요?</button></div>
   </section>
 
-  <div id="alert" hidden><span id="alertIcon"></span><strong id="alertTitle"></strong><span id="alertSub"></span></div>
+  <div id="alert" hidden><span id="alertIcon"></span><strong id="alertTitle"></strong><span id="alertSub"></span><div id="alertWait" class="wait" hidden><em id="waitTxt"></em><i class="track"><i id="waitFill"></i></i></div></div>
   <div id="toast" class="panel" hidden></div>
 
   <div id="checklist" class="panel" hidden>
@@ -71,7 +71,10 @@
     </div>
   </div>
 
-  <div id="controls"><div><b>이동</b>바닥 클릭 · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div><div><b>둘러보기</b>오른쪽 버튼 드래그 · 휠로 확대</div><div><b>동작</b>아래 버튼 · 가방·라디오 직접 클릭</div></div>
+  <div id="controls">
+    <div class="pc"><div><b>이동</b>바닥 클릭 · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div><div><b>둘러보기</b>오른쪽 버튼 드래그 · 휠로 확대</div><div><b>동작</b>아래 버튼 · 가방·라디오 직접 클릭</div></div>
+    <div class="touch"><div><b>이동</b>가고 싶은 바닥을 탭</div><div><b>둘러보기</b>한 손가락으로 끌기</div><div><b>확대</b>두 손가락으로 벌리기</div></div>
+  </div>
 
   <nav id="bottom" class="panel" aria-label="동작">
     <button class="act" id="act1" data-a="1"><kbd>1</kbd><span>가방 챙기기</span></button>
