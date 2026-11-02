@@ -205,7 +205,11 @@ details.info a{color:rgba(255,212,59,.7)}
   #alert span{display:none}
   #toast{top:calc(112px + env(safe-area-inset-top,0px));font-size:13.5px;padding:9px 14px}
   #controls,#minimap{display:none}
-  #checklist{top:auto;bottom:calc(186px + env(safe-area-inset-bottom,0px));min-width:0;padding:10px 12px}
+  #checklist{top:auto;bottom:calc(140px + var(--dock-h,96px) + env(safe-area-inset-bottom,0px));min-width:0;padding:10px 12px}
+  /* 안내원 말풍선: 동작 바 위에 고정(목표를 가리지 않게) */
+  .bubble.dock{position:fixed;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));top:auto;bottom:calc(128px + env(safe-area-inset-bottom,0px));transform:none;width:auto;max-width:none;padding:11px 15px;font-size:14px;z-index:5}
+  .bubble.dock::after{display:none}
+  .bubble.dock b.who{font-size:12.5px;margin-bottom:4px}
   #bottom{width:calc(100vw - 24px);justify-content:space-between;padding:4px}
   .act{height:46px;padding:0 6px;font-size:12.5px;flex-direction:column;justify-content:center;gap:2px}
   .act kbd{display:none}

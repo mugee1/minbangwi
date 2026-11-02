@@ -368,6 +368,7 @@ function startApp() {
 
   /* ---------- 카메라 ---------- */
   const camPos = new THREE.Vector3(), camLook = new THREE.Vector3(), tmp = new THREE.Vector3(), bagV = new THREE.Vector3();
+  const mobileQ = matchMedia('(max-width:760px)'); // style.css 모바일 구간과 같은 기준
   function desired(out) { const d = S.dist, h = Math.sin(S.pitch) * d, r = Math.cos(S.pitch) * d; return out.set(me.position.x + Math.sin(S.yaw) * r, 1 + h, me.position.z + Math.cos(S.yaw) * r); }
   function snapCamera() { desired(camPos); camLook.set(me.position.x, 1, me.position.z); camera.position.copy(camPos); camera.lookAt(camLook); }
 
@@ -445,7 +446,12 @@ function startApp() {
       if (p.z > 1 || Math.abs(p.x) > 1.2 || Math.abs(p.y) > 1.2) { L.el.style.display = 'none'; return; }
       L.el.style.display = ''; L.el.style.left = ((p.x + 1) / 2 * Wd) + 'px'; L.el.style.top = ((1 - p.y) / 2 * Hd) + 'px';
     });
-    if (S.started && bubbleText && !overlay) {
+    if (S.started && bubbleText && !overlay && mobileQ.matches) {
+      // 모바일: 동작 바 위 같은 자리에 고정해서, 찾아야 할 목표를 가리지 않아요(체크리스트는 그 위로)
+      bubble.hidden = false; bubble.classList.add('dock'); bubble.style.left = bubble.style.top = '';
+      document.documentElement.style.setProperty('--dock-h', bubble.offsetHeight + 'px');
+    } else if (S.started && bubbleText && !overlay) {
+      bubble.classList.remove('dock');
       const p = V3(guide.position.x, 2.15, guide.position.z).project(camera);
       if (p.z < 1) {
         bubble.hidden = false;
