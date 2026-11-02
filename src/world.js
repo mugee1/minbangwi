@@ -67,49 +67,52 @@
 
   function build() {
     const S = {};
-    const skyDay = T.sky('day'), skyDusk = T.sky('dusk');
+    const skyDay = T.sky('day');
 
     /* ---------- 우리 집 · 10층 거실 ---------- */
     const home = S.home = room('home', {
       ox: 0, w: 14, d: 10, h: 3.2, name: '우리 집', sub: '10층 거실',
-      floorTex: T.wood('#B98B60', 3, 2.2), wallTex: T.wall('#EFE6D8', 6, 2), baseColor: 0x9C7A5C,
-      backWindow: { x: -1.6, w: 4.4, y0: .9, y1: 2.6 },
-      light: { sky: 0xFFF1DE, ground: 0x6B5240, sun: 0xFFE3C2, sunI: 2.2, amb: .45 },
+      floorTex: T.wood('#C29A6E', 2.4, 2.2), floorRough: .55, wallTex: T.wall('#F1EDE6', 6, 2), baseColor: 0xEDE7DE,
+      backWindow: { x: -1.6, w: 6.4, y0: .45, y1: 2.8 },
+      light: { sky: 0xFFF8EE, ground: 0x7A6450, sun: 0xFFF0DC, sunI: 2.3, amb: .55 },
     });
-    frameWindow(home.walls.back, { x: -1.6, w: 4.4, y0: .9, y1: 2.6 }, std(0xC9AA86), skyDusk, .35);
+    frameWindow(home.walls.back, { x: -1.6, w: 6.4, y0: .45, y1: 2.8 }, std(0xF4F1EC), skyDay, .35);
     (() => {
       const g = home.g;
       // 러그
-      const rug = plane(g, 5.2, 3.6, std(0xC98B6B, { map: T.tile('#CC9474', '#B97D5E', 6, 2, 2) }), -2, .012, -1.4, 0, -Math.PI / 2);
+      const rug = plane(g, 5.2, 3.6, std(0xffffff, { map: T.tile('#B65A45', '#AA5240', 28, 1, 1), roughness: .95 }), -2, .012, -1.4, 0, -Math.PI / 2);
+      // 커튼(얇은 시폰) · 거실창 양옆
+      const sheer = std(0xE9E5DD, { transparent: true, opacity: .85, roughness: 1 });
+      [-5.25, 1.75].forEach(x => box(g, .9, 2.75, .08, sheer, x, .05, -4.9, { noCast: true }));
       // 소파
-      const fab = std(0x7C93A6), fab2 = std(0x6D8396);
+      const fab = std(0xEDE6D9), fab2 = std(0xE2DACB);
       box(g, 3.4, .42, 1.1, fab, -2, 0, -3.25); box(g, 3.4, .9, .3, fab2, -2, 0, -3.85);
       box(g, .32, .66, 1.1, fab2, -3.86, 0, -3.25); box(g, .32, .66, 1.1, fab2, -.14, 0, -3.25);
-      [-2.8, -1.2].forEach(x => box(g, 1.4, .18, .9, std(0x8EA6B8), x, .42, -3.2));
-      box(g, .5, .45, .18, std(0xF2C46B), -3.3, .55, -3.6).rotation.z = .2;
+      [-2.8, -1.2].forEach(x => box(g, 1.4, .18, .9, std(0xF4EFE6), x, .42, -3.2));
+      box(g, .5, .45, .18, std(0xB86A45), -3.3, .55, -3.6).rotation.z = .2;
       block(home, -4.05, -4.1, .05, -2.65);
       // 테이블
-      box(g, 1.7, .08, .9, std(0xB07F55), -2, .36, -1.3); [[-2.7, -1.65], [-1.3, -1.65], [-2.7, -.95], [-1.3, -.95]].forEach(([x, z]) => cyl(g, .04, .04, .36, 0x8A6342, x, 0, z));
+      box(g, 1.7, .08, .9, std(0x4B3426, { roughness: .6 }), -2, .36, -1.3); [[-2.7, -1.65], [-1.3, -1.65], [-2.7, -.95], [-1.3, -.95]].forEach(([x, z]) => cyl(g, .07, .07, .36, 0x3F2B1F, x, 0, z));
       cyl(g, .08, .07, .16, 0xF4F1EA, -1.7, .44, -1.2); box(g, .3, .03, .22, std(0xE8E2D6), -2.3, .44, -1.35);
       block(home, -2.9, -1.8, -1.1, -.8);
       // TV장 + TV
-      box(g, .55, .5, 2.6, std(0x8A6646), -6.4, 0, -1.4); box(g, .07, 1.05, 1.9, std(0x1B1D20, { roughness: .3 }), -6.55, .72, -1.4);
+      box(g, .55, .5, 2.6, std(0x5A3F2E), -6.4, 0, -1.4); box(g, .07, 1.05, 1.9, std(0x1B1D20, { roughness: .3 }), -6.55, .72, -1.4);
       block(home, -6.9, -2.8, -6.0, 0);
       // 스탠드
-      cyl(g, .04, .04, 1.55, 0x4A3F35, -4.7, 0, -3.7); cyl(g, .22, .32, .38, std(0xFFE3B0, { emissive: 0xFFC77A, emissiveIntensity: .6 }), -4.7, 1.5, -3.7);
+      cyl(g, .03, .03, 1.55, 0x1E1E20, -4.7, 0, -3.7); cyl(g, .22, .32, .38, std(0xFFE3B0, { emissive: 0xFFC77A, emissiveIntensity: .6 }), -4.7, 1.5, -3.7);
       const pl = new THREE.PointLight(0xFFC98A, 4, 6, 1.6); pl.position.set(-4.7, 1.8, -3.5); g.add(pl);
       // 화분
       cyl(g, .26, .2, .44, 0xB97A55, 5.7, 0, -4.2); add(g, new THREE.IcosahedronGeometry(.5, 1), std(0x6E9A63), 5.7, .95, -4.2); add(g, new THREE.IcosahedronGeometry(.34, 1), std(0x7FAE72), 5.5, 1.3, -4.0);
       block(home, 5.3, -4.6, 6.1, -3.8);
       // 책장
-      box(g, 1.8, 2.0, .4, std(0x9C7454), 3.2, 0, -4.75);
-      for (let i = 0; i < 4; i++) box(g, 1.7, .04, .36, std(0x86603F), 3.2, .4 + i * .45, -4.72);
+      box(g, 1.8, 2.0, .4, std(0xCDAB80), 3.2, 0, -4.75);
+      for (let i = 0; i < 4; i++) box(g, 1.7, .04, .36, std(0xB8936A), 3.2, .4 + i * .45, -4.72);
       const bookC = [0xC8665A, 0x6E8FB5, 0xE6C35C, 0x7FA06E, 0xB58BB0];
       for (let r = 0; r < 4; r++) for (let i = 0; i < 6; i++) box(g, .16, .3 + (i % 3) * .04, .26, std(bookC[(i + r) % 5]), 2.55 + i * .2, .45 + r * .45, -4.7);
       block(home, 2.2, -5, 4.2, -4.4);
       // 현관(오른쪽 벽): 문 + 신발장
-      box(g, .5, 1.0, 1.3, std(0xA7835F), 6.7, 0, -2.2); block(home, 6.3, -2.9, 7, -1.5);
-      box(g, .1, 2.2, 1.2, std(0x7E5E44), 6.96, 0, .7);
+      box(g, .5, 1.0, 1.3, std(0xE8E1D6), 6.7, 0, -2.2); block(home, 6.3, -2.9, 7, -1.5);
+      box(g, .1, 2.2, 1.2, std(0xB9946C), 6.96, 0, .7);
       add(g, new THREE.SphereGeometry(.05, 10, 8), std(0xD9C29A, { metalness: .6, roughness: .3 }), 6.88, 1.05, 1.15);
       const mat = plane(g, 1.4, 1.6, std(0x9A8C7C), 6.25, .013, .7, 0, -Math.PI / 2);
       // 비상 가방 (선반 위)
@@ -219,11 +222,11 @@
     /* ---------- 12층 실내 ---------- */
     const high = S.high = room('high', {
       ox: 120, w: 13, d: 9, h: 3.0, name: '12층 실내', sub: '바깥 공기를 막을 방',
-      floorTex: T.wood('#C9A27A', 3, 2), wallTex: T.wall('#ECE7DF', 6, 2), baseColor: 0x9C8268,
+      floorTex: T.wood('#C9A378', 2.4, 2), floorRough: .55, wallTex: T.wall('#F1EDE6', 6, 2), baseColor: 0xEDE7DE,
       backWindow: { x: 1.2, w: 3.6, y0: .9, y1: 2.5 },
-      light: { sky: 0xFFF4E4, ground: 0x5E4B3C, sun: 0xFFE6C6, sunI: 2.0, amb: .5 },
+      light: { sky: 0xFFF8EE, ground: 0x7A6450, sun: 0xFFF0DC, sunI: 2.1, amb: .55 },
     });
-    frameWindow(high.walls.back, { x: 1.2, w: 3.6, y0: .9, y1: 2.5 }, std(0xD8D2C8), skyDay, .3);
+    frameWindow(high.walls.back, { x: 1.2, w: 3.6, y0: .9, y1: 2.5 }, std(0xF4F1EC), skyDay, .3);
     (() => {
       const g = high.g;
       // 열린 창(미닫이): 닫으면 유리가 가운데로 옴
@@ -241,10 +244,10 @@
       for (let i = 0; i < 4; i++) { const pv = new THREE.Group(); pv.rotation.x = i * Math.PI / 2; add(pv, new THREE.BoxGeometry(.04, .34, .1), std(0x6B6F75), 0, .17, 0); fan.add(pv); }
       high.fan = fan;
       // 가구
-      box(g, 2.4, .08, 1.0, std(0xB58A60), -2.6, .72, 2.6); [[-3.7, 2.2], [-1.5, 2.2], [-3.7, 3.0], [-1.5, 3.0]].forEach(([x, z]) => cyl(g, .04, .04, .72, 0x8A6342, x, 0, z));
+      box(g, 2.4, .08, 1.0, std(0x5A3F2E, { roughness: .6 }), -2.6, .72, 2.6); [[-3.7, 2.2], [-1.5, 2.2], [-3.7, 3.0], [-1.5, 3.0]].forEach(([x, z]) => cyl(g, .04, .04, .72, 0x3F2B1F, x, 0, z));
       box(g, .5, .45, .5, std(0x7C93A6), -2.6, 0, 3.6);
       block(high, -3.9, 2.0, -1.3, 3.9);
-      box(g, 2.6, .42, 1.0, std(0x9AA88C), 3.0, 0, 3.7); box(g, 2.6, .85, .28, std(0x8A987C), 3.0, 0, 4.2);
+      box(g, 2.6, .42, 1.0, std(0xEDE6D9), 3.0, 0, 3.7); box(g, 2.6, .85, .28, std(0xE2DACB), 3.0, 0, 4.2);
       block(high, 1.6, 3.1, 4.4, 4.5);
       cyl(g, .24, .2, .4, 0xB97A55, -5.6, 0, 3.9); add(g, new THREE.IcosahedronGeometry(.45, 1), std(0x6E9A63), -5.6, .85, 3.9);
       high.spawn = new THREE.Vector3(4.6, 0, 1.8); high.spawnYaw = 0.5;

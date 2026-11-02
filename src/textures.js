@@ -19,21 +19,35 @@
     return 'rgb(' + (r | 0) + ',' + (g | 0) + ',' + (b | 0) + ')';
   }
 
-  // 나무 마루: 긴 판자 + 결
+  // 나무 마루: 아파트 강마루 느낌(좁고 긴 밝은 오크 판자, 옅은 결, 가는 이음매)
   T.wood = function (base, rx, ry) {
-    const [c, g] = canvas(512, 512);
-    const rows = 8, h = 512 / rows;
+    const [c, g] = canvas(1024, 1024);
+    const rows = 14, h = 1024 / rows;
     for (let r = 0; r < rows; r++) {
-      let x = -rnd() * 300;
-      while (x < 512) {
-        const w = 220 + rnd() * 200, k = 0.88 + rnd() * 0.2;
-        g.fillStyle = shade(base, k); g.fillRect(x, r * h, w, h);
-        g.strokeStyle = shade(base, k * 0.92); g.lineWidth = 1;
-        for (let i = 0; i < 5; i++) { const yy = r * h + 6 + rnd() * (h - 12); g.beginPath(); g.moveTo(x + 4, yy); g.bezierCurveTo(x + w * .3, yy + rnd() * 4 - 2, x + w * .7, yy + rnd() * 4 - 2, x + w - 4, yy); g.stroke(); }
-        g.fillStyle = shade(base, 0.62); g.fillRect(x, r * h, 2, h);
+      let x = -rnd() * 600;
+      while (x < 1024) {
+        const w = 520 + rnd() * 380, k = 0.94 + rnd() * 0.12;
+        const y0 = r * h;
+        // 판자 바탕: 살짝 그라데이션
+        const gr = g.createLinearGradient(x, y0, x + w, y0 + h);
+        gr.addColorStop(0, shade(base, k * 1.02)); gr.addColorStop(.5, shade(base, k)); gr.addColorStop(1, shade(base, k * 0.97));
+        g.fillStyle = gr; g.fillRect(x, y0, w, h);
+        // 결: 가늘고 옅은 선
+        for (let i = 0; i < 9; i++) {
+          const yy = y0 + 4 + rnd() * (h - 8);
+          g.strokeStyle = 'rgba(90,55,25,' + (0.05 + rnd() * 0.07) + ')'; g.lineWidth = 0.6 + rnd() * 0.9;
+          g.beginPath(); g.moveTo(x + 2, yy);
+          g.bezierCurveTo(x + w * .3, yy + rnd() * 3 - 1.5, x + w * .7, yy + rnd() * 3 - 1.5, x + w - 2, yy + rnd() * 2 - 1); g.stroke();
+        }
+        // 옹이 가끔
+        if (rnd() > .82) { const kx = x + 60 + rnd() * (w - 120), ky = y0 + h * (.3 + rnd() * .4); g.fillStyle = 'rgba(110,70,35,.18)'; g.beginPath(); g.ellipse(kx, ky, 9 + rnd() * 8, 3 + rnd() * 2, 0, 0, 7); g.fill(); }
+        // 판자 끝 이음매
+        g.fillStyle = 'rgba(70,45,25,.35)'; g.fillRect(x, y0, 1.5, h);
         x += w;
       }
-      g.fillStyle = shade(base, 0.6); g.fillRect(0, r * h, 512, 2);
+      // 줄 이음매 + 위쪽 하이라이트
+      g.fillStyle = 'rgba(70,45,25,.32)'; g.fillRect(0, r * h, 1024, 1.5);
+      g.fillStyle = 'rgba(255,245,230,.12)'; g.fillRect(0, r * h + 1.5, 1024, 1.5);
     }
     return tex(c, rx, ry);
   };

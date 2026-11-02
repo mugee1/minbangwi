@@ -12,12 +12,18 @@
     const g = AC.createGain(); g.gain.value = 0;
     o.connect(f); f.connect(g); g.connect(master); o.start();
     g.gain.linearRampToValueAtTime(0.06, AC.currentTime + 1.2);
-    siren = { o, g };
+    siren = { o, g, t0: AC.currentTime };
   }
   function sirenLevel(v) { if (siren) siren.g.gain.linearRampToValueAtTime(v, AC.currentTime + 1.5); }
   function sirenStop() { if (!siren) return; const s = siren; siren = null; s.g.gain.linearRampToValueAtTime(0, AC.currentTime + 2); setTimeout(() => { try { s.o.stop(); } catch (e) {} }, 2200); }
-  // 파상음: 주파수가 오르내림(약 5초 주기)
-  function tick(t) { if (siren && AC) siren.o.frequency.setTargetAtTime(760 + 340 * Math.sin(t * Math.PI * 2 * 0.2), AC.currentTime, 0.05); }
+  // 공습경보 파상음: 5초 상승 → 3초 하강을 반복(8초 주기). 2초 상승·2초 하강은 재난 경보음이라 다름
+  const RISE = 5, FALL = 3, LOW = 420, HIGH = 1100;
+  function tick() {
+    if (!siren || !AC) return;
+    const ph = (AC.currentTime - siren.t0) % (RISE + FALL);
+    const k = ph < RISE ? ph / RISE : 1 - (ph - RISE) / FALL;
+    siren.o.frequency.setTargetAtTime(LOW + (HIGH - LOW) * k, AC.currentTime, 0.03);
+  }
   function chime() {
     if (!AC) return; const t = AC.currentTime;
     [[659, 0], [880, .28], [988, .56]].forEach(([fr, dt]) => { const o = AC.createOscillator(); o.type = 'sine'; o.frequency.value = fr; const g = AC.createGain(); g.gain.setValueAtTime(0, t + dt); g.gain.linearRampToValueAtTime(.12, t + dt + .03); g.gain.exponentialRampToValueAtTime(.0001, t + dt + .9); o.connect(g); g.connect(master); o.start(t + dt); o.stop(t + dt + 1); });

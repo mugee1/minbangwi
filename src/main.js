@@ -19,7 +19,7 @@
   renderer.shadowMap.enabled = !lite;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = MB.scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x211C18);
+  scene.background = new THREE.Color(0xDDEBF6);
   const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
   const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2); scene.add(hemi);
   const amb = new THREE.AmbientLight(0xffffff, .4); scene.add(amb);
@@ -53,11 +53,11 @@
 
   /* ---------- 목표 지점(빛나는 원) ---------- */
   const ringGeo = new THREE.RingGeometry(.5, .72, 48);
-  const glowTex = MB.tex.radial('rgba(242,153,74,.55)', 'rgba(242,153,74,0)');
+  const glowTex = MB.tex.radial('rgba(47,128,237,.45)', 'rgba(47,128,237,0)');
   const HS = {};
   function hotspot(name, sp, p, r, onEnter, silent) {
     const grp = new THREE.Group(); grp.position.set(sp.ox + p.x, .03, p.z); scene.add(grp); grp.visible = false;
-    const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0xF2994A, transparent: true, opacity: .9, side: THREE.DoubleSide, depthWrite: false })); ring.rotation.x = -Math.PI / 2; grp.add(ring);
+    const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0x2F80ED, transparent: true, opacity: .9, side: THREE.DoubleSide, depthWrite: false })); ring.rotation.x = -Math.PI / 2; grp.add(ring);
     const glow = new THREE.Mesh(new THREE.CircleGeometry(1.2, 32), new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, depthWrite: false })); glow.rotation.x = -Math.PI / 2; glow.position.y = -.01; grp.add(glow);
     HS[name] = { name, sp, pos: V3(sp.ox + p.x, 0, p.z), r: r || 1, onEnter, active: false, grp, silent };
   }
@@ -73,7 +73,7 @@
   function activate(list) { list.forEach(h => { h.active = true; h.grp.visible = !h.silent; }); }
 
   // 길 안내 점
-  const dots = []; const dotMat = new THREE.MeshBasicMaterial({ color: 0xFFC48C, transparent: true, opacity: .95, depthWrite: false });
+  const dots = []; const dotMat = new THREE.MeshBasicMaterial({ color: 0x5AA6F5, transparent: true, opacity: .95, depthWrite: false });
   for (let i = 0; i < 18; i++) { const d = new THREE.Mesh(new THREE.CircleGeometry(.08, 14), dotMat); d.rotation.x = -Math.PI / 2; d.visible = false; scene.add(d); dots.push(d); }
   let pathTarget = null;
   const clickMark = new THREE.Mesh(new THREE.RingGeometry(.22, .3, 28), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false }));

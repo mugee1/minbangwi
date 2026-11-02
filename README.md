@@ -32,7 +32,7 @@
 ## 폴더 구조
 ```
 index.html            화면 뼈대(HUD, 로비, 카드)
-src/style.css         사우나 고요식 반투명 패널, 모바일 대응
+src/style.css         밝은 학습용 카드 패널, 모바일 대응
 src/config.js         서비스명 · 단계 · '왜' 문구 (서비스명은 여기서 바꿔요)
 src/textures.js       나무 · 타일 · 콘크리트 · 창밖 풍경 · 표지판 (캔버스로 생성)
 src/characters.js     치비 캐릭터 · 머리 장식 · 걷기/앉기 애니메이션
