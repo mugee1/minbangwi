@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.fnnews.com)",
+      "WebFetch(domain:www.dailian.co.kr)",
+      "WebFetch(domain:kyeonggi.com)",
+      "mcp__claude_ai_Google_Drive__search_files",
+      "mcp__claude_ai_Google_Sheets__get_spreadsheet",
+      "mcp__claude_ai_Google_Sheets__get_values",
+      "Bash(node bagtest.js \"C:/Users/user/OneDrive/바탕 화면/minbangwi\")",
+      "Bash(echo \"full-run exit: $?\")",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(python -c ' *)",
+      "Bash(node -e ' *)",
+      "mcp__claude_ai_Google_Drive__download_file_content",
+      "Bash(cd \"c:/Users/user/OneDrive/바탕 화면/minbangwi\" && wc -c 프롬프트.md && git log -1 --format=%ci -- 프롬프트.md && stat -c '%y' 프롬프트.md)",
+      "Read(//c/Users/user/OneDrive/바탕 화면/minbangwi/**)",
+      "mcp__claude_ai_Google_Drive__get_file_metadata"
+    ]
+  }
+}
