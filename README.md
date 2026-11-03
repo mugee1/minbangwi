@@ -60,7 +60,8 @@
 ```
 index.html            화면 뼈대(HUD, 로비, 카드)
 src/style.css         다크 반투명 패널 + 노란 테두리, 모바일 대응
-src/config.js         서비스명 · 단계 · '왜' 문구 (서비스명은 여기서 바꿔요)
+content.json          안내 문구 · 단계 · '왜' 문구 · 서비스명 (문구는 여기서만 고쳐요)
+src/content.js        content.json을 옮긴 자동 생성 파일 (python tools/gen-content.py)
 src/textures.js       나무 · 타일 · 콘크리트 · 창밖 풍경 · 표지판 (캔버스로 생성)
 src/characters.js     치비 캐릭터 · 머리 장식 · 걷기/앉기 애니메이션
 src/world.js          우리 집 · 10층 복도 · 지하 대피소 · 12층 실내

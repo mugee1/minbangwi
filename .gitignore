@@ -4,3 +4,4 @@ Thumbs.db
 dist/
 tools/shots/
 *.log
+__pycache__/

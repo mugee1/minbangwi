@@ -1,11 +1,11 @@
 # 무사이(MUSAI) — 대피 연습 3D 웹
 
-서비스명 무사이(MUSAI): ‘무사히’에서 착안, 안전하게 상황을 헤쳐 나가는 경험. 이름은 `src/config.js`의 `SERVICE_NAME`과 `index.html` 로비 제목에 있음. 저장소 이름(minbangwi)과 3D 속 "민방위 대피시설" 표지판(실제 시설 명칭)은 그대로 둔다.
+서비스명 무사이(MUSAI): ‘무사히’에서 착안, 안전하게 상황을 헤쳐 나가는 경험. 이름은 `content.json`의 `service.name`과 `index.html` 로비 제목에 있음. 저장소 이름(minbangwi)과 3D 속 "민방위 대피시설" 표지판(실제 시설 명칭)은 그대로 둔다.
 
 공습경보 → 지하 대피소 → 화생방(다시 위로) → 경보해제까지 "대피 1세트"를 3D 공간에서 걸으며 익히는 교육용 정적 웹. 대상에 어린이도 포함되므로 겁주지 않는 톤(해요체, 부드러운 색)을 유지한다.
 
 ## 실행 · 배포
-- 빌드 없음. `index.html`을 브라우저로 열면 동작. `?test`(시간 빠르게), `?lite`(그림자 끔).
+- 빌드 없음. `index.html`을 브라우저로 열면 동작(더블클릭도 됨 — 아래 content.js 참고). `?test`(시간 빠르게), `?lite`(그림자 끔).
 - `tools/build-single.py` → `dist/single.html`(한 파일로 합침, dist는 gitignore).
 - 원격: `https://github.com/mugee1/minbangwi.git` (`main`). GitHub Pages 배포 대상.
 - Windows, `core.autocrlf=true` → 커밋 시 LF/CRLF 경고는 무시해도 됨. 모든 파일 UTF-8(BOM 없음).
@@ -14,12 +14,13 @@
 | 파일 | 역할 |
 |---|---|
 | `index.html` | HUD·로비(진입 팝업)·카드·완료 화면 마크업. 스크립트는 전역 IIFE 순서대로 로드 |
-| `src/config.js` | `MB.config`: 서비스명, 단계(STEPS), 회고 카드 '왜' 4가지 |
+| `content.json` | **안내 문구·단계의 원본**: 서비스명·출처, `steps`, `why`, 별명, 장소별 문구, `ui` 조각, `alerts`, `flow`(단계별 `say`·`toast`·`big`·`card`·`speak`·`alertSub`). `{n}` 자리는 `fmt()`로 채움. 카드 `src`는 쪽수만 적음 |
+| `src/content.js` | `MB.content` — content.json을 옮긴 **자동 생성** 파일(file://에선 JSON fetch가 막혀서 필요). content.json을 고치면 `python tools/gen-content.py` 실행. 웹 서버로 열면 main.js가 content.json을 직접 fetch해 덮어씀. `build-single.py`도 자동 재생성 |
 | `src/textures.js` | `MB.tex`: 캔버스로 그리는 재질(강마루 `wood`, 타일, 콘크리트, 벽지, 창밖 하늘, 표지판) |
 | `src/characters.js` | `MB.characters`: 치비 캐릭터(`animal` 옵션으로 동물 얼굴·귀·꼬리), 모자, 걷기/앉기 애니메이션 |
 | `src/world.js` | `MB.world.build()`: 4개 공간(home 10층 거실, hall 10층 복도, shelter B1, high 12층) — 각 공간은 x 오프셋(0/40/80/120)으로 나란히 배치 |
 | `src/audio.js` | `MB.audio`: Web Audio 사이렌·차임·클릭 + Web Speech 음성 |
-| `src/main.js` | 렌더러·카메라·입력·HUD·대피 흐름. `startApp()`은 Pretendard 로드 후(최대 2초) 실행. 테스트 훅 `window.app` |
+| `src/main.js` | 렌더러·카메라·입력·HUD·대피 흐름(문구는 직접 쓰지 말고 `C`/`F`/`UI`/`AL`로 content에서 꺼냄). 3D 표지판·장소 이름은 `world.js`, 정적 마크업은 `index.html`에 남아 있음. `startApp()`은 Pretendard 로드 후(최대 2초) 실행. 테스트 훅 `window.app` |
 | `src/style.css` | 전체 UI 스타일. 색은 `:root` 토큰으로 관리 |
 | `tools/drive.js`, `tools/test.js` | Playwright 자동 플레이(단계별 스크린샷) |
 
